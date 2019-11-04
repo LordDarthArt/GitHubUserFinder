@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "821511917821",
+    "firebase_url": "https://githubuserfinder.firebaseio.com",
+    "project_id": "githubuserfinder",
+    "storage_bucket": "githubuserfinder.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:821511917821:android:ea4f69b75ea2cba5252e94",
+        "android_client_info": {
+          "package_name": "tk.lorddarthart.githubuserfinder"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "821511917821-cbu4ddiklue4lcjsodfasqekbpr0uvpf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB6LAZRnqIxK0yvnVJwCoidY7Xzhst376k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "821511917821-cbu4ddiklue4lcjsodfasqekbpr0uvpf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

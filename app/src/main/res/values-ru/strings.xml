@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Поиск пользователей GitHub</string>
+    <string name="action_settings">Настройки</string>
+    <string name="menu_gallery">Галерея</string>
+    <string name="menu_home">Домашняя страница</string>
+    <string name="menu_send">Отправить</string>
+    <string name="menu_share">Поделиться</string>
+    <string name="menu_slideshow">Слайдшоу</string>
+    <string name="menu_tools">Инструменты</string>
+    <string name="navigation_drawer_close">Закрыть дровер</string>
+    <string name="nav_header_desc">Заголовок дровера</string>
+    <string name="search_hint">Введите имя пользователя GitHub</string>
+    <string name="sign_in">Авторизация</string>
+    <string name="navigation_drawer_open">Открыть дровер</string>
+    <string name="no_results_search">Нет результатов, попробуйте провести поиск ещё раз, с использованием другого ключевого слова</string>
+    <string name="menu_exit">Выход</string>
+    <string name="search">Поиск</string>
+    <string name="try_again">Попробовать снова</string>
+    <string name="exit_accept_message">Вы точно хотите выйти из приложения?</string>
+    <string name="yes">Да</string>
+    <string name="cancel">Отмена</string>
+    <string name="sign_out">Выход из аккаунта</string>
+    <string name="sign_out_accept_message">Вы точно хотите выйти из Вашего текущего аккаунта?</string>
+</resources>
