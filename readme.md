@@ -19,3 +19,7 @@ After sending some requests to server, there will be this error, then we're gett
 ```message Only the first 1000 search results are available```
 
 We can't get more then first 1000 users on each request, after that we are getting 422 error, unfixable
+
+## Tools for building
+
+This project was developed using Android Studio 4.0 - preview1 and was tested on Android SDK 29 (Android 10)

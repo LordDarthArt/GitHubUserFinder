@@ -24,7 +24,7 @@
     <string name="cancel">Cancel</string>
     <string name="sign_out">Sign out</string>
     <string name="sign_out_accept_message">Are you sure you want to sign out from current account?</string>
-    <string name="id">ID:</string>
+    <string name="id" translatable="false">ID:</string>
     <string name="type">Type:</string>
     <string name="score">Score:</string>
 </resources>
