@@ -44,7 +44,8 @@ class MainFragment : BaseFragment(), IOnBackPressed,
     }
 
     private val searchStringObserver = Observer<String> { searchString ->
-        if (!searchString.isNullOrBlank()) {
+        if (!searchString.isNullOrBlank() && !mainViewModel.beginNetworkRequest) {
+            mainViewModel.beginNetworkRequest = true
             with(mainViewModel) {
                 clearUserList()
                 setCurrentPage(1)
