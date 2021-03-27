@@ -1,4 +1,4 @@
-package tk.lorddarthart.githubuserfinder.util.constants
+package tk.lorddarthart.githubuserfinder.common.constants
 
 object IntConstants {
     const val GOOGLE_SIGN_IN_CODE = 15326

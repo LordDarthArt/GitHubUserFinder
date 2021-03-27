@@ -8,9 +8,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import tk.lorddarthart.githubuserfinder.R
 import tk.lorddarthart.githubuserfinder.application.App
-import tk.lorddarthart.githubuserfinder.application.model.User
+import tk.lorddarthart.githubuserfinder.domain.local.model.User
 import tk.lorddarthart.githubuserfinder.databinding.ItemSingleUserBinding
-import tk.lorddarthart.githubuserfinder.util.helper.SameCallback
+import tk.lorddarthart.githubuserfinder.common.helper.SameCallback
 
 class SearchAdapter : ListAdapter<User, SearchAdapter.SearchViewHolder>(SameCallback<User>()) {
 

@@ -1,4 +1,4 @@
-package tk.lorddarthart.githubuserfinder.util.helper
+package tk.lorddarthart.githubuserfinder.common.helper
 
 import android.view.View
 

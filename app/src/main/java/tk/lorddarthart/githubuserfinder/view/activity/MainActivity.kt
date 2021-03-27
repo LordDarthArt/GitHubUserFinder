@@ -3,19 +3,16 @@ package tk.lorddarthart.githubuserfinder.view.activity
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import tk.lorddarthart.githubuserfinder.R
 import tk.lorddarthart.githubuserfinder.application.App
 import tk.lorddarthart.githubuserfinder.view.base.BaseActivity
 import tk.lorddarthart.githubuserfinder.view.fragment.auth.AuthFragment
 import tk.lorddarthart.githubuserfinder.view.fragment.main.MainFragment
 import tk.lorddarthart.githubuserfinder.databinding.ActivityMainBinding
-import tk.lorddarthart.githubuserfinder.util.helper.IOnBackPressed
-import tk.lorddarthart.githubuserfinder.util.logs.Loggable
-import tk.lorddarthart.githubuserfinder.util.logs.logDebug
+import tk.lorddarthart.githubuserfinder.common.helper.IOnBackPressed
+import tk.lorddarthart.githubuserfinder.common.logs.Loggable
+import tk.lorddarthart.githubuserfinder.common.logs.logDebug
 
 class MainActivity : BaseActivity(), Loggable {
     private lateinit var mainActivityView: ActivityMainBinding

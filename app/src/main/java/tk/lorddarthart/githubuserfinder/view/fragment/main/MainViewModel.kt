@@ -13,10 +13,10 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import tk.lorddarthart.githubuserfinder.application.App
-import tk.lorddarthart.githubuserfinder.application.model.User
-import tk.lorddarthart.githubuserfinder.application.model.UserList
+import tk.lorddarthart.githubuserfinder.domain.local.model.User
+import tk.lorddarthart.githubuserfinder.domain.remote.UserListObject
 import tk.lorddarthart.githubuserfinder.view.base.BaseViewModel
-import tk.lorddarthart.githubuserfinder.util.network.HttpServiceHelper
+import tk.lorddarthart.githubuserfinder.common.network.HttpServiceHelper
 
 class MainViewModel : BaseViewModel() {
 
@@ -52,7 +52,7 @@ class MainViewModel : BaseViewModel() {
 
     var beginNetworkRequest = false
 
-    var call: Call<UserList>? = null
+    var call: Call<UserListObject>? = null
 
     init {
         _searchStringLiveData.value = ""
@@ -79,8 +79,8 @@ class MainViewModel : BaseViewModel() {
         call = HttpServiceHelper.instance?.jsonApi
             ?.getUserByName(_searchStringLiveData.value!!, _currentPageLiveData.value!!, 30)
 
-        call?.enqueue(object : Callback<UserList> {
-            override fun onResponse(call: Call<UserList>, response: Response<UserList>) {
+        call?.enqueue(object : Callback<UserListObject> {
+            override fun onResponse(call: Call<UserListObject>, response: Response<UserListObject>) {
                 val users = response.body()
                 if (users?.users != null && users.users!!.isNotEmpty()) {
                     (_userListLiveData.value as MutableList).addAll(users.users!!)
@@ -119,7 +119,7 @@ class MainViewModel : BaseViewModel() {
                 this@MainViewModel.call = null
             }
 
-            override fun onFailure(call: Call<UserList>, t: Throwable) {
+            override fun onFailure(call: Call<UserListObject>, t: Throwable) {
                 call.cancel()
                 _errorLiveData.value = "FATAL: Request error: ${t.message}"
                 beginNetworkRequest = false

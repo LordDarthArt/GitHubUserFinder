@@ -1,4 +1,4 @@
-package tk.lorddarthart.githubuserfinder.util.helper
+package tk.lorddarthart.githubuserfinder.common.helper
 
 /**
  * Created by LordDarthArt at 03.11.2019

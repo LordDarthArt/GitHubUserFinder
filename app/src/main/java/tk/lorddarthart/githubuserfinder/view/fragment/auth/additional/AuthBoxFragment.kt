@@ -20,9 +20,9 @@ import tk.lorddarthart.githubuserfinder.R
 import tk.lorddarthart.githubuserfinder.application.App
 import tk.lorddarthart.githubuserfinder.view.base.BaseFragment
 import tk.lorddarthart.githubuserfinder.databinding.ItemAuthBoxBinding
-import tk.lorddarthart.githubuserfinder.util.constants.IntConstants.GOOGLE_SIGN_IN_CODE
-import tk.lorddarthart.githubuserfinder.util.logs.Loggable
-import tk.lorddarthart.githubuserfinder.util.logs.logDebug
+import tk.lorddarthart.githubuserfinder.common.constants.IntConstants.GOOGLE_SIGN_IN_CODE
+import tk.lorddarthart.githubuserfinder.common.logs.Loggable
+import tk.lorddarthart.githubuserfinder.common.logs.logDebug
 
 class AuthBoxFragment : BaseFragment(), Loggable {
     private lateinit var authBoxBinding: ItemAuthBoxBinding

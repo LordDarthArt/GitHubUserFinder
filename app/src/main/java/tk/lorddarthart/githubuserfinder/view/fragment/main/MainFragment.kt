@@ -23,13 +23,13 @@ import com.squareup.picasso.Picasso
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.coroutines.*
 import tk.lorddarthart.githubuserfinder.R
-import tk.lorddarthart.githubuserfinder.application.model.SignedInGoogleUser
+import tk.lorddarthart.githubuserfinder.domain.local.model.Session
 import tk.lorddarthart.githubuserfinder.view.base.BaseFragment
 import tk.lorddarthart.githubuserfinder.view.fragment.main.adapter.SearchAdapter
 import tk.lorddarthart.githubuserfinder.databinding.FragmentMainBinding
-import tk.lorddarthart.githubuserfinder.util.helper.IOnBackPressed
-import tk.lorddarthart.githubuserfinder.util.helper.isDisplayedOnScreen
-import tk.lorddarthart.githubuserfinder.util.helper.setVisible
+import tk.lorddarthart.githubuserfinder.common.helper.IOnBackPressed
+import tk.lorddarthart.githubuserfinder.common.helper.isDisplayedOnScreen
+import tk.lorddarthart.githubuserfinder.common.helper.setVisible
 
 class MainFragment : BaseFragment(), IOnBackPressed, NavigationView.OnNavigationItemSelectedListener {
     private lateinit var binding: FragmentMainBinding
@@ -112,6 +112,7 @@ class MainFragment : BaseFragment(), IOnBackPressed, NavigationView.OnNavigation
                     mainViewModel.setErrorMessageToNull()
                 }
             }
+
             displayPagingLiveData.observe(viewLifecycleOwner) { displayPagingObserver }
             displayNoResultsLiveData.observe(viewLifecycleOwner) { displayNoResultsObserver }
             displayTryAgainLiveData.observe(viewLifecycleOwner) { displayTryAgainObserver }
@@ -137,7 +138,7 @@ class MainFragment : BaseFragment(), IOnBackPressed, NavigationView.OnNavigation
         val googleSignInResults = mainViewModel.getSignInResults()
 
         googleSignInResults?.let { user ->
-            with(SignedInGoogleUser) {
+            with(Session) {
                 personEmail = user.email
                 personFamilyName = user.familyName
                 personGivenName = user.givenName
@@ -152,9 +153,9 @@ class MainFragment : BaseFragment(), IOnBackPressed, NavigationView.OnNavigation
             val userGivenName = findViewById<TextView>(R.id.user_given_name)
             val userEmail = findViewById<TextView>(R.id.user_email)
 
-            userGivenName.text = SignedInGoogleUser.personGivenName
-            userEmail.text = SignedInGoogleUser.personEmail
-            Picasso.get().load(SignedInGoogleUser.personPhoto)
+            userGivenName.text = Session.personGivenName
+            userEmail.text = Session.personEmail
+            Picasso.get().load(Session.personPhoto)
                 .placeholder(R.drawable.ic_account)
                 .error(R.drawable.ic_account)
                 .into(userAvatar)
@@ -210,12 +211,8 @@ class MainFragment : BaseFragment(), IOnBackPressed, NavigationView.OnNavigation
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.menu_sign_out -> {
-                showSignOutDialog()
-            }
-            R.id.menu_exit -> {
-                showExitDialog()
-            }
+            R.id.menu_sign_out -> { showSignOutDialog() }
+            R.id.menu_exit -> { showExitDialog() }
         }
         return true
     }

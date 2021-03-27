@@ -1,11 +1,11 @@
-package tk.lorddarthart.githubuserfinder.util.network
+package tk.lorddarthart.githubuserfinder.common.network
 
 import okhttp3.Dispatcher
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import tk.lorddarthart.githubuserfinder.util.constants.UrlConstants.BASE_URL
+import tk.lorddarthart.githubuserfinder.common.constants.UrlConstants.BASE_URL
 
 class HttpServiceHelper {
     private val mRetrofit: Retrofit

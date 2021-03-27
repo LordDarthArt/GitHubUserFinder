@@ -1,7 +1,7 @@
-package tk.lorddarthart.githubuserfinder.util.logs
+package tk.lorddarthart.githubuserfinder.common.logs
 
 import android.util.Log
-import tk.lorddarthart.githubuserfinder.util.helper.isDebug
+import tk.lorddarthart.githubuserfinder.common.helper.isDebug
 
 interface Loggable
 
