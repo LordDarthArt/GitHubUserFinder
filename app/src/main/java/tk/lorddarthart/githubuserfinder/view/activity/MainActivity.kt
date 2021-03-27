@@ -15,14 +15,13 @@ import tk.lorddarthart.githubuserfinder.common.logs.Loggable
 import tk.lorddarthart.githubuserfinder.common.logs.logDebug
 
 class MainActivity : BaseActivity(), Loggable {
-    private lateinit var mainActivityView: ActivityMainBinding
+    private lateinit var binding: ActivityMainBinding
 
     val mainActivityViewModel: MainActivityViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mainActivityView = DataBindingUtil
-            .setContentView(this, R.layout.activity_main)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
         initialization()
     }
@@ -34,9 +33,7 @@ class MainActivity : BaseActivity(), Loggable {
 
     private fun start() {
         mainActivityViewModel.setCurrentUser(FirebaseAuth.getInstance().currentUser)
-        mainActivityViewModel.getCurrentUser()?.let { firebaseUser ->
-            App.user = firebaseUser
-        }
+        mainActivityViewModel.getCurrentUser()?.let { firebaseUser -> App.user = firebaseUser }
     }
 
     private fun hangObservers() {
@@ -45,12 +42,12 @@ class MainActivity : BaseActivity(), Loggable {
             when (currentFragment) {
                 CurrentScreen.AuthScreen -> {
                     supportFragmentManager.beginTransaction()
-                        .replace(mainActivityView.mainFragmentContainer.id, AuthFragment())
+                        .replace(binding.mainFragmentContainer.id, AuthFragment())
                         .commitAllowingStateLoss()
                 }
                 CurrentScreen.MainScreen -> {
                     supportFragmentManager.beginTransaction()
-                        .replace(mainActivityView.mainFragmentContainer.id, MainFragment())
+                        .replace(binding.mainFragmentContainer.id, MainFragment())
                         .commitAllowingStateLoss()
                 }
                 else -> {
