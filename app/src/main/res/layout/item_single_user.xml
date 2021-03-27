@@ -2,12 +2,13 @@
 <layout xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:android="http://schemas.android.com/apk/res/android">
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/single_user_profile_image"
+            android:id="@+id/profile_image"
             android:layout_width="96dp"
             android:layout_height="96dp"
             android:layout_marginStart="16dp"
@@ -21,7 +22,7 @@
             app:srcCompat="@drawable/ic_account" />
 
         <TextView
-            android:id="@+id/single_user_nickname"
+            android:id="@+id/nickname"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -30,37 +31,37 @@
             android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/single_user_profile_image"
-            app:layout_constraintTop_toTopOf="@+id/single_user_profile_image" />
+            app:layout_constraintStart_toEndOf="@+id/profile_image"
+            app:layout_constraintTop_toTopOf="@+id/profile_image" />
 
         <TextView
-            android:id="@+id/single_user_id"
+            android:id="@+id/user_id"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:text="TextView"
-            app:layout_constraintEnd_toStartOf="@+id/single_user_is_admin"
-            app:layout_constraintStart_toStartOf="@+id/single_user_nickname"
-            app:layout_constraintTop_toBottomOf="@+id/single_user_nickname" />
+            app:layout_constraintEnd_toStartOf="@+id/is_admin"
+            app:layout_constraintStart_toStartOf="@+id/nickname"
+            app:layout_constraintTop_toBottomOf="@+id/nickname" />
 
         <TextView
-            android:id="@+id/single_user_is_admin"
+            android:id="@+id/is_admin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="TextView"
-            app:layout_constraintEnd_toEndOf="@+id/single_user_nickname"
-            app:layout_constraintTop_toBottomOf="@+id/single_user_nickname" />
+            app:layout_constraintEnd_toEndOf="@+id/nickname"
+            app:layout_constraintTop_toBottomOf="@+id/nickname" />
 
         <TextView
-            android:id="@+id/single_user_score"
+            android:id="@+id/score"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="TextView"
-            app:layout_constraintEnd_toEndOf="@+id/single_user_is_admin"
-            app:layout_constraintStart_toStartOf="@+id/single_user_id"
-            app:layout_constraintTop_toBottomOf="@+id/single_user_id" />
+            app:layout_constraintEnd_toEndOf="@+id/is_admin"
+            app:layout_constraintStart_toStartOf="@+id/user_id"
+            app:layout_constraintTop_toBottomOf="@+id/user_id" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

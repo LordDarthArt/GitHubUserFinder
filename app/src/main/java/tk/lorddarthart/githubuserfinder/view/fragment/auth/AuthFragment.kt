@@ -1,12 +1,12 @@
-package tk.lorddarthart.githubuserfinder.application.view.fragment.auth
+package tk.lorddarthart.githubuserfinder.view.fragment.auth
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
-import tk.lorddarthart.githubuserfinder.application.view.base.BaseFragment
-import tk.lorddarthart.githubuserfinder.application.view.fragment.auth.additional.AuthBoxFragment
+import tk.lorddarthart.githubuserfinder.view.base.BaseFragment
+import tk.lorddarthart.githubuserfinder.view.fragment.auth.additional.AuthBoxFragment
 import tk.lorddarthart.githubuserfinder.databinding.FragmentAuthBinding
 
 class AuthFragment : BaseFragment() {

@@ -1,4 +1,4 @@
-package tk.lorddarthart.githubuserfinder.application.view.fragment.main
+package tk.lorddarthart.githubuserfinder.view.fragment.main
 
 import android.os.Bundle
 import android.text.Editable
@@ -9,8 +9,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE
@@ -23,71 +24,29 @@ import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.coroutines.*
 import tk.lorddarthart.githubuserfinder.R
 import tk.lorddarthart.githubuserfinder.application.model.SignedInGoogleUser
-import tk.lorddarthart.githubuserfinder.application.model.User
-import tk.lorddarthart.githubuserfinder.application.view.base.BaseFragment
-import tk.lorddarthart.githubuserfinder.application.view.fragment.main.adapter.SearchAdapter
+import tk.lorddarthart.githubuserfinder.view.base.BaseFragment
+import tk.lorddarthart.githubuserfinder.view.fragment.main.adapter.SearchAdapter
 import tk.lorddarthart.githubuserfinder.databinding.FragmentMainBinding
 import tk.lorddarthart.githubuserfinder.util.helper.IOnBackPressed
-import tk.lorddarthart.githubuserfinder.util.helper.UtilFunctions.isDisplayedOnScreen
+import tk.lorddarthart.githubuserfinder.util.helper.isDisplayedOnScreen
 import tk.lorddarthart.githubuserfinder.util.helper.setVisible
 
+class MainFragment : BaseFragment(), IOnBackPressed, NavigationView.OnNavigationItemSelectedListener {
+    private lateinit var binding: FragmentMainBinding
 
-class MainFragment : BaseFragment(), IOnBackPressed,
-    NavigationView.OnNavigationItemSelectedListener {
-    private lateinit var mainBinding: FragmentMainBinding
-    private val coroutineScope = CoroutineScope(Dispatchers.IO)
-
-    private val mainViewModel: MainViewModel by lazy {
-        ViewModelProvider(
-            this
-        )[MainViewModel::class.java]
-    }
-
-    private val searchStringObserver = Observer<String> { searchString ->
-        if (!searchString.isNullOrBlank() && !mainViewModel.beginNetworkRequest) {
-            mainViewModel.beginNetworkRequest = true
-            with(mainViewModel) {
-                clearUserList()
-                setCurrentPage(1)
-                showLoadingHideOthers()
-            }
-            coroutineScope.launch { request() }
-        }
-    }
-
-    private val errorDataObserver = Observer<String?> { errorMessage ->
-        errorMessage?.let { message ->
-            activity.runOnUiThread {
-                Snackbar.make(mainBinding.root, message, Snackbar.LENGTH_LONG).show()
-            }
-            mainViewModel.setErrorMessageToNull()
-        }
-    }
-
-    private val userListObserver = Observer<MutableList<User?>> {
-        if (mainBinding.fragmentMainListOfUsersFound.adapter?.itemCount!! <= 0) {
-            mainViewModel.showNoResultsHideOthers()
-        } else {
-            mainViewModel.showLoadingHideOthers()
-        }
-        mainViewModel.getCurrentPage()?.plus(1)?.let {
-            activity.runOnUiThread(Runnable {
-                mainViewModel.setCurrentPage(it)
-            })
-        }
-        mainBinding.fragmentMainListOfUsersFound.adapter?.notifyDataSetChanged()
-    }
+    private val mainViewModel: MainViewModel by viewModels()
+    private val searchAdapter: SearchAdapter by lazy { SearchAdapter().apply { setHasStableIds(true) } }
 
     private val displayPagingObserver = Observer<Boolean> { show ->
-        mainBinding.fragmentMainLoadingNextPage.setVisible(show)
+        binding.fragmentMainLoadingNextPage.setVisible(show)
     }
 
     private val displayNoResultsObserver = Observer<Boolean> { show ->
-        mainBinding.fragmentMainNoResultsText.setVisible(show)
+        binding.fragmentMainNoResultsText.setVisible(show)
     }
 
     private val displayTryAgainObserver = Observer<Boolean> { show ->
-        mainBinding.fragmentMainButtonTryAgain.setVisible(show)
+        binding.fragmentMainButtonTryAgain.setVisible(show)
     }
 
     private val currentUserObserver = Observer<FirebaseUser> { firebaseUser ->
@@ -100,16 +59,12 @@ class MainFragment : BaseFragment(), IOnBackPressed,
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        mainBinding = FragmentMainBinding.inflate(
-            inflater,
-            container,
-            false
-        )
+    ): View {
+        binding = FragmentMainBinding.inflate(inflater, container, false)
 
         initialization()
 
-        return mainBinding.root
+        return binding.root
     }
 
     private fun initialization() {
@@ -121,7 +76,7 @@ class MainFragment : BaseFragment(), IOnBackPressed,
 
     private fun configure() {
         // For RecyclerView's better performance
-        with(mainBinding.fragmentMainListOfUsersFound) {
+        binding.fragmentMainListOfUsersFound.apply {
             setHasFixedSize(true)
             setItemViewCacheSize(20);
             isDrawingCacheEnabled = true;
@@ -131,27 +86,53 @@ class MainFragment : BaseFragment(), IOnBackPressed,
 
     private fun hangObservers() {
         with(mainViewModel) {
-            searchStringLiveData.observe(this@MainFragment, searchStringObserver)
-            userListLiveData.observe(this@MainFragment, userListObserver)
-            errorLiveData.observe(this@MainFragment, errorDataObserver)
-            displayPagingLiveData.observe(this@MainFragment, displayPagingObserver)
-            displayNoResultsLiveData.observe(this@MainFragment, displayNoResultsObserver)
-            displayTryAgainLiveData.observe(this@MainFragment, displayTryAgainObserver)
-            currentUserLiveData.observe(this@MainFragment, currentUserObserver)
+            searchStringLiveData.observe(viewLifecycleOwner) { searchString ->
+                if (!searchString.isNullOrBlank() && !mainViewModel.beginNetworkRequest) {
+                    mainViewModel.beginNetworkRequest = true
+                    mainViewModel.apply { clearUserList(); setCurrentPage(1); showLoadingHideOthers() }
+                    lifecycleScope.launch { request() }
+                }
+            }
+
+            userListLiveData.observe(viewLifecycleOwner) {
+                if (binding.fragmentMainListOfUsersFound.adapter?.itemCount!! <= 0) {
+                    mainViewModel.showNoResultsHideOthers()
+                } else {
+                    mainViewModel.showLoadingHideOthers()
+                }
+                mainViewModel.getCurrentPage()?.plus(1)?.let {
+                    mainViewModel.setCurrentPage(it)
+                }
+                searchAdapter.submitList(it.toList())
+            }
+
+            errorLiveData.observe(viewLifecycleOwner) { errorMessage ->
+                errorMessage?.let { message ->
+                    Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
+                    mainViewModel.setErrorMessageToNull()
+                }
+            }
+            displayPagingLiveData.observe(viewLifecycleOwner) { displayPagingObserver }
+            displayNoResultsLiveData.observe(viewLifecycleOwner) { displayNoResultsObserver }
+            displayTryAgainLiveData.observe(viewLifecycleOwner) { displayTryAgainObserver }
+            currentUserLiveData.observe(viewLifecycleOwner) { currentUserObserver }
         }
     }
 
     private fun start() {
         with(activity) {
-            setSupportActionBar(mainBinding.toolbar)
+            setSupportActionBar(binding.toolbar)
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
         }
 
         mainViewModel.begin()
 
-        mainBinding.fragmentMainListOfUsersFound.layoutManager = LinearLayoutManager(activity)
-        mainBinding.fragmentMainListOfUsersFound.adapter =
-            SearchAdapter(mainViewModel.getUserList())
+        binding.fragmentMainListOfUsersFound.apply {
+            layoutManager = LinearLayoutManager(activity)
+            adapter = searchAdapter
+
+            itemAnimator = null
+        }
 
         val googleSignInResults = mainViewModel.getSignInResults()
 
@@ -166,7 +147,7 @@ class MainFragment : BaseFragment(), IOnBackPressed,
             }
         }
 
-        with(mainBinding.navView.getHeaderView(0)) {
+        with(binding.navView.getHeaderView(0)) {
             val userAvatar = findViewById<CircleImageView>(R.id.user_avatar)
             val userGivenName = findViewById<TextView>(R.id.user_given_name)
             val userEmail = findViewById<TextView>(R.id.user_email)
@@ -181,18 +162,18 @@ class MainFragment : BaseFragment(), IOnBackPressed,
 
         val toggle = ActionBarDrawerToggle(
             activity,
-            mainBinding.drawerLayout,
-            mainBinding.toolbar,
+            binding.drawerLayout,
+            binding.toolbar,
             R.string.navigation_drawer_open,
             R.string.navigation_drawer_close
         )
-        mainBinding.drawerLayout.addDrawerListener(toggle)
+        binding.drawerLayout.addDrawerListener(toggle)
         toggle.isDrawerIndicatorEnabled = true
         toggle.syncState()
     }
 
     private fun initListeners() {
-        mainBinding.fragmentMainSearchField.addTextChangedListener(object : TextWatcher {
+        binding.fragmentMainSearchField.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 // do nothing
             }
@@ -206,26 +187,25 @@ class MainFragment : BaseFragment(), IOnBackPressed,
             }
         })
 
-        mainBinding.fragmentMainListOfUsersFound.addOnScrollListener(object :
+        binding.fragmentMainListOfUsersFound.addOnScrollListener(object :
             RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
                 if (mainViewModel.call == null
-                    && isDisplayedOnScreen(mainBinding.fragmentMainLoadingNextPage)
-                    && newState == SCROLL_STATE_IDLE && !mainViewModel.beginNetworkRequest
-                ) {
+                    && binding.fragmentMainLoadingNextPage.isDisplayedOnScreen()
+                    && newState == SCROLL_STATE_IDLE && !mainViewModel.beginNetworkRequest) {
                     mainViewModel.beginNetworkRequest = true
                     coroutineScope.launch { request() }
                 }
             }
         })
 
-        mainBinding.fragmentMainButtonTryAgain.setOnClickListener {
+        binding.fragmentMainButtonTryAgain.setOnClickListener {
             mainViewModel.beginNetworkRequest = true
             coroutineScope.launch { request() }
         }
 
-        mainBinding.navView.setNavigationItemSelectedListener(this)
+        binding.navView.setNavigationItemSelectedListener(this)
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {

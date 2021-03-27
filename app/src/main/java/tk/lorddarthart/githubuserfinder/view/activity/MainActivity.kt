@@ -1,6 +1,7 @@
-package tk.lorddarthart.githubuserfinder.application.view.activity
+package tk.lorddarthart.githubuserfinder.view.activity
 
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -8,9 +9,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import tk.lorddarthart.githubuserfinder.R
 import tk.lorddarthart.githubuserfinder.application.App
-import tk.lorddarthart.githubuserfinder.application.view.base.BaseActivity
-import tk.lorddarthart.githubuserfinder.application.view.fragment.auth.AuthFragment
-import tk.lorddarthart.githubuserfinder.application.view.fragment.main.MainFragment
+import tk.lorddarthart.githubuserfinder.view.base.BaseActivity
+import tk.lorddarthart.githubuserfinder.view.fragment.auth.AuthFragment
+import tk.lorddarthart.githubuserfinder.view.fragment.main.MainFragment
 import tk.lorddarthart.githubuserfinder.databinding.ActivityMainBinding
 import tk.lorddarthart.githubuserfinder.util.helper.IOnBackPressed
 import tk.lorddarthart.githubuserfinder.util.logs.Loggable
@@ -19,37 +20,7 @@ import tk.lorddarthart.githubuserfinder.util.logs.logDebug
 class MainActivity : BaseActivity(), Loggable {
     private lateinit var mainActivityView: ActivityMainBinding
 
-    val mainActivityViewModel: MainActivityViewModel by lazy {
-        ViewModelProvider(
-            this
-        )[MainActivityViewModel::class.java]
-    }
-
-    private val currentUserObserver = Observer<FirebaseUser?> { firebaseUser ->
-        if (firebaseUser == null) {
-            mainActivityViewModel.setCurrentFragment(CurrentFragment.AUTH)
-        } else {
-            mainActivityViewModel.setCurrentFragment(CurrentFragment.MAIN)
-        }
-    }
-
-    private val currentFragmentObserver = Observer<CurrentFragment> { currentFragment ->
-        when (currentFragment) {
-            CurrentFragment.AUTH -> {
-                supportFragmentManager.beginTransaction()
-                    .replace(mainActivityView.mainFragmentContainer.id, AuthFragment())
-                    .commitAllowingStateLoss()
-            }
-            CurrentFragment.MAIN -> {
-                supportFragmentManager.beginTransaction()
-                    .replace(mainActivityView.mainFragmentContainer.id, MainFragment())
-                    .commitAllowingStateLoss()
-            }
-            else -> {
-                logDebug { "Are you serious?!" }
-            }
-        }
-    }
+    val mainActivityViewModel: MainActivityViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,8 +43,32 @@ class MainActivity : BaseActivity(), Loggable {
     }
 
     private fun hangObservers() {
-        mainActivityViewModel.currentFragmentLiveData.observe(this, currentFragmentObserver)
-        mainActivityViewModel.currentUserLiveData.observe(this, currentUserObserver)
+        mainActivityViewModel.currentScreenLiveData.observe(this) {  currentFragment ->
+            // todo implement navcomponent
+            when (currentFragment) {
+                CurrentScreen.AuthScreen -> {
+                    supportFragmentManager.beginTransaction()
+                        .replace(mainActivityView.mainFragmentContainer.id, AuthFragment())
+                        .commitAllowingStateLoss()
+                }
+                CurrentScreen.MainScreen -> {
+                    supportFragmentManager.beginTransaction()
+                        .replace(mainActivityView.mainFragmentContainer.id, MainFragment())
+                        .commitAllowingStateLoss()
+                }
+                else -> {
+                    logDebug { "Are you serious?!" }
+                }
+            }
+        }
+
+        mainActivityViewModel.currentUserLiveData.observe(this) { firebaseUser ->
+            if (firebaseUser == null) {
+                mainActivityViewModel.setCurrentFragment(CurrentScreen.AuthScreen)
+            } else {
+                mainActivityViewModel.setCurrentFragment(CurrentScreen.MainScreen)
+            }
+        }
     }
 
     override fun onBackPressed() {

@@ -1,4 +1,4 @@
-package tk.lorddarthart.githubuserfinder.application.view.fragment.auth.additional
+package tk.lorddarthart.githubuserfinder.view.fragment.auth.additional
 
 import android.content.Intent
 import android.os.Bundle
@@ -18,7 +18,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import tk.lorddarthart.githubuserfinder.R
 import tk.lorddarthart.githubuserfinder.application.App
-import tk.lorddarthart.githubuserfinder.application.view.base.BaseFragment
+import tk.lorddarthart.githubuserfinder.view.base.BaseFragment
 import tk.lorddarthart.githubuserfinder.databinding.ItemAuthBoxBinding
 import tk.lorddarthart.githubuserfinder.util.constants.IntConstants.GOOGLE_SIGN_IN_CODE
 import tk.lorddarthart.githubuserfinder.util.logs.Loggable

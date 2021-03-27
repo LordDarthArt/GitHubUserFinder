@@ -1,4 +1,4 @@
-package tk.lorddarthart.githubuserfinder.application.view.base
+package tk.lorddarthart.githubuserfinder.view.base
 
 import androidx.lifecycle.ViewModel
 

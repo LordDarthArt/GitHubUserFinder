@@ -1,8 +1,8 @@
-package tk.lorddarthart.githubuserfinder.application.view.base
+package tk.lorddarthart.githubuserfinder.view.base
 
 import android.content.Context
 import androidx.fragment.app.Fragment
-import tk.lorddarthart.githubuserfinder.application.view.activity.MainActivity
+import tk.lorddarthart.githubuserfinder.view.activity.MainActivity
 
 /**
  * Base Fragment class that is parent to other fragments of this application

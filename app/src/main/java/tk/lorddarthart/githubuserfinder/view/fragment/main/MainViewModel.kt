@@ -1,4 +1,4 @@
-package tk.lorddarthart.githubuserfinder.application.view.fragment.main
+package tk.lorddarthart.githubuserfinder.view.fragment.main
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -15,7 +15,7 @@ import retrofit2.Response
 import tk.lorddarthart.githubuserfinder.application.App
 import tk.lorddarthart.githubuserfinder.application.model.User
 import tk.lorddarthart.githubuserfinder.application.model.UserList
-import tk.lorddarthart.githubuserfinder.application.view.base.BaseViewModel
+import tk.lorddarthart.githubuserfinder.view.base.BaseViewModel
 import tk.lorddarthart.githubuserfinder.util.network.HttpServiceHelper
 
 class MainViewModel : BaseViewModel() {
@@ -24,8 +24,8 @@ class MainViewModel : BaseViewModel() {
     val userListLiveData: LiveData<MutableList<User?>>
         get() = _userListLiveData
 
-    private val _searchStringLiveData = MutableLiveData<String>()
-    val searchStringLiveData: LiveData<String>
+    private val _searchStringLiveData = MutableLiveData<String?>()
+    val searchStringLiveData: LiveData<String?>
         get() = _searchStringLiveData
 
     private val _currentPageLiveData = MutableLiveData<Int>()
@@ -63,13 +63,20 @@ class MainViewModel : BaseViewModel() {
     }
 
     fun begin() {
-        _currentPageLiveData.value = 1
-        _userListLiveData.value = mutableListOf()
+        if (_currentPageLiveData.value == null) {
+            _currentPageLiveData.value = 1
+        } else {
+            _currentPageLiveData.value = _currentPageLiveData.value
+        }
+        if (_userListLiveData.value == null) {
+            _userListLiveData.value = mutableListOf()
+        } else {
+            _userListLiveData.value = _userListLiveData.value
+        }
     }
 
     fun fetchData() {
-        call = HttpServiceHelper.instance
-            ?.jsonApi
+        call = HttpServiceHelper.instance?.jsonApi
             ?.getUserByName(_searchStringLiveData.value!!, _currentPageLiveData.value!!, 30)
 
         call?.enqueue(object : Callback<UserList> {

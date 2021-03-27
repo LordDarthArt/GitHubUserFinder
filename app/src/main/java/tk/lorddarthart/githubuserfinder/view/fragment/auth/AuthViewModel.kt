@@ -1,4 +1,4 @@
-package tk.lorddarthart.githubuserfinder.application.view.fragment.auth
+package tk.lorddarthart.githubuserfinder.view.fragment.auth
 
 import androidx.lifecycle.ViewModel
 

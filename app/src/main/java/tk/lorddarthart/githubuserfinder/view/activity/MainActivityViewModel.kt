@@ -1,21 +1,21 @@
-package tk.lorddarthart.githubuserfinder.application.view.activity
+package tk.lorddarthart.githubuserfinder.view.activity
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.FirebaseUser
-import tk.lorddarthart.githubuserfinder.application.view.base.BaseViewModel
+import tk.lorddarthart.githubuserfinder.view.base.BaseViewModel
 
 class MainActivityViewModel : BaseViewModel() {
-    private var _currentFragmentLiveData = MutableLiveData<CurrentFragment>()
-    val currentFragmentLiveData: LiveData<CurrentFragment>
+    private var _currentFragmentLiveData = MutableLiveData<CurrentScreen>()
+    val currentScreenLiveData: LiveData<CurrentScreen>
         get() = _currentFragmentLiveData
 
     private var _currentUserLiveData = MutableLiveData<FirebaseUser?>()
     val currentUserLiveData: LiveData<FirebaseUser?>
         get() = _currentUserLiveData
 
-    fun setCurrentFragment(fragment: CurrentFragment) {
-        _currentFragmentLiveData.value = fragment
+    fun setCurrentFragment(screen: CurrentScreen) {
+        _currentFragmentLiveData.value = screen
     }
 
     fun setCurrentUser(user: FirebaseUser?) {

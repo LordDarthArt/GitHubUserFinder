@@ -1,8 +1,8 @@
-package tk.lorddarthart.githubuserfinder.application.view.fragment.auth.additional
+package tk.lorddarthart.githubuserfinder.view.fragment.auth.additional
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import tk.lorddarthart.githubuserfinder.application.view.base.BaseViewModel
+import tk.lorddarthart.githubuserfinder.view.base.BaseViewModel
 
 class AuthBoxViewModel : BaseViewModel() {
 
