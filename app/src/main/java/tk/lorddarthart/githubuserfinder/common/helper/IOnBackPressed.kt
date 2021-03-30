@@ -10,5 +10,4 @@ interface IOnBackPressed {
      * OnBackPressed Listener of fragment
      */
     fun onBackPressed()
-
 }

@@ -1,23 +1,29 @@
 package tk.lorddarthart.githubuserfinder.view.activity
 
 import android.os.Bundle
-import androidx.activity.viewModels
 import androidx.databinding.DataBindingUtil
+import androidx.navigation.NavController
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import com.google.firebase.auth.FirebaseAuth
+import org.kodein.di.DI
+import org.kodein.di.DIAware
+import org.kodein.di.android.closestDI
 import tk.lorddarthart.githubuserfinder.R
-import tk.lorddarthart.githubuserfinder.application.App
 import tk.lorddarthart.githubuserfinder.view.base.BaseActivity
-import tk.lorddarthart.githubuserfinder.view.fragment.auth.AuthFragment
-import tk.lorddarthart.githubuserfinder.view.fragment.main.MainFragment
 import tk.lorddarthart.githubuserfinder.databinding.ActivityMainBinding
 import tk.lorddarthart.githubuserfinder.common.helper.IOnBackPressed
 import tk.lorddarthart.githubuserfinder.common.logs.Loggable
 import tk.lorddarthart.githubuserfinder.common.logs.logDebug
+import tk.lorddarthart.githubuserfinder.di.activityViewModel
+import tk.lorddarthart.githubuserfinder.view.main.MainFragmentDirections
 
-class MainActivity : BaseActivity(), Loggable {
+class MainActivity : BaseActivity(), Loggable, DIAware {
     private lateinit var binding: ActivityMainBinding
 
-    val mainActivityViewModel: MainActivityViewModel by viewModels()
+    override val di: DI by closestDI()
+    private val viewModel: MainActivityViewModel by activityViewModel()
+    private val navController: NavController by lazy { findNavController(R.id.nav_host_fragment) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,41 +38,38 @@ class MainActivity : BaseActivity(), Loggable {
     }
 
     private fun start() {
-        mainActivityViewModel.setCurrentUser(FirebaseAuth.getInstance().currentUser)
-        mainActivityViewModel.getCurrentUser()?.let { firebaseUser -> App.user = firebaseUser }
+        viewModel.setCurrentUser(FirebaseAuth.getInstance().currentUser)
+//        viewModel.getCurrentUser()?.let { firebaseUser -> App.user = firebaseUser }
+
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val graphInflater = navHostFragment.navController.navInflater
+        val navGraph = graphInflater.inflate(R.navigation.main_graph)
+
+        val destination = if (viewModel.getCurrentUser() == null) R.id.auth_fragment else R.id.main_fragment
+        navGraph.startDestination = destination
+        navController.graph = navGraph
     }
 
     private fun hangObservers() {
-        mainActivityViewModel.currentScreenLiveData.observe(this) {  currentFragment ->
-            // todo implement navcomponent
-            when (currentFragment) {
-                CurrentScreen.AuthScreen -> {
-                    supportFragmentManager.beginTransaction()
-                        .replace(binding.mainFragmentContainer.id, AuthFragment())
-                        .commitAllowingStateLoss()
-                }
-                CurrentScreen.MainScreen -> {
-                    supportFragmentManager.beginTransaction()
-                        .replace(binding.mainFragmentContainer.id, MainFragment())
-                        .commitAllowingStateLoss()
-                }
-                else -> {
-                    logDebug { "Are you serious?!" }
-                }
+        viewModel.currentScreenLiveData.observe(this) { currentScreen ->
+            when (currentScreen) {
+                CurrentScreen.AuthScreen -> { navController.navigate(MainFragmentDirections.actionGlobalToAuth()) }
+                CurrentScreen.MainScreen -> { navController.navigate(MainFragmentDirections.actionGlobalToMain()) }
+                else -> { logDebug { "Are you serious?!" } }
             }
         }
 
-        mainActivityViewModel.currentUserLiveData.observe(this) { firebaseUser ->
+        viewModel.currentUserLiveData.observe(this) { firebaseUser ->
             if (firebaseUser == null) {
-                mainActivityViewModel.setCurrentFragment(CurrentScreen.AuthScreen)
+                viewModel.setCurrentFragment(CurrentScreen.AuthScreen)
             } else {
-                mainActivityViewModel.setCurrentFragment(CurrentScreen.MainScreen)
+                viewModel.setCurrentFragment(CurrentScreen.MainScreen)
             }
         }
     }
 
     override fun onBackPressed() {
-        val currentFragment = supportFragmentManager.findFragmentById(R.id.main_fragment_container)
+        val currentFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
 
         if (currentFragment is IOnBackPressed) {
             currentFragment.onBackPressed()

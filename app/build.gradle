@@ -1,20 +1,20 @@
 apply plugin: "com.android.application"
 apply plugin: "kotlin-android"
-apply plugin: "kotlin-android-extensions"
 apply plugin: "kotlin-kapt"
 apply plugin: "com.google.firebase.crashlytics"
 apply plugin: "com.google.gms.google-services"
+apply plugin: "androidx.navigation.safeargs.kotlin"
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     buildToolsVersion "30.0.3"
 
     defaultConfig {
         applicationId "tk.lorddarthart.githubuserfinder"
-        minSdkVersion rootProject.min_sdk_version
-        targetSdkVersion rootProject.target_sdk_version
+        minSdkVersion minSdkVersionValue
+        targetSdkVersion targetSdkVersionValue
         versionCode versionBuild
-        versionName "${rootProject.versionMajor}.${rootProject.versionMinor}.${rootProject.versionPatch}-b${rootProject.versionBuild}"
+        versionName "${versionMajor}.${versionMinor}.${versionPatch}-b${versionBuild}"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
@@ -44,10 +44,17 @@ android {
             }
         }
     }
-    dataBinding.enabled = true
+    buildFeatures {
+        dataBinding = true
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
 }
 
@@ -56,13 +63,13 @@ dependencies {
     apply from: "../dependencies.gradle"
 
     // Core
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
     implementation "androidx.core:core-ktx:$androidCoreVersion"
 
     // Base
-    implementation "androidx.appcompat:appcompat:$appcompat_version"
-    implementation "androidx.legacy:legacy-support-v4:$legacy_support_version"
-    implementation "androidx.constraintlayout:constraintlayout:$constraint_layout_version"
+    implementation "androidx.appcompat:appcompat:$appcompatVersion"
+    implementation "androidx.legacy:legacy-support-v4:$legacySupportVersion"
+    implementation "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
     implementation "androidx.fragment:fragment-ktx:$androidFragmentVersion"
     implementation "com.google.android.material:material:$materialVersion"
 
@@ -73,34 +80,46 @@ dependencies {
     kapt "androidx.lifecycle:lifecycle-common-java8:$architectureComponentsVersion"
 
     // Data Binding Library
-    kapt "com.android.databinding:compiler:$databinding_library_version"
+    kapt "com.android.databinding:compiler:$databindingLibraryVersion"
 
     // Kotlin support
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
 
     // Coroutines
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
 
     // Firebase Libraries
-    implementation "com.google.firebase:firebase-core:$firebase_core_version"
-    implementation "com.google.firebase:firebase-auth:$firebase_auth_version"
-    implementation "com.google.firebase:firebase-crashlytics:17.4.0"
-    implementation "com.google.firebase:firebase-analytics:18.0.2"
+    implementation "com.google.firebase:firebase-core:$firebaseCoreVersion"
+    implementation "com.google.firebase:firebase-auth:$firebaseAuthVersion"
+    implementation "com.google.firebase:firebase-crashlytics:$firebaseCrashlyticsVersion"
+    implementation "com.google.firebase:firebase-analytics:$firebaseAnalyticsVersion"
 
     // Google Play Services Auth
-    implementation "com.google.android.gms:play-services-auth:$play_services_auth_version"
+    implementation "com.google.android.gms:play-services-auth:$playServicesAuthVersion"
 
     // Retrofit
-    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
-    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
+    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
+    implementation "com.github.MohammadSianaki:Retrofit2-Flow-Call-Adapter:$retrofitFlowVersion"
 
     // OkHttp3 Logging interceptor for logging during Http request.
-    implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_logging_interceptor_version"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okhttpLoggingInterceptorVersion"
 
-    // Picasso
-    implementation "com.squareup.picasso:picasso:$picasso_version"
+    // Glide
+    implementation "com.github.bumptech.glide:glide:$glideVersion"
+    kapt "com.github.bumptech.glide:compiler:$glideVersion"
 
     // CircleImageView
-    implementation "de.hdodenhof:circleimageview:$circle_image_view_version"
+    implementation "de.hdodenhof:circleimageview:$circleImageViewVersion"
+
+    // Kodein
+    implementation "org.kodein.di:kodein-di:$kodeinVersion"
+    implementation "org.kodein.di:kodein-di-framework-android-x:$kodeinVersion"
+    
+    // Navigation component
+    implementation "androidx.navigation:navigation-fragment-ktx:$navComponentVersion"
+    implementation "androidx.navigation:navigation-ui-ktx:$navComponentVersion"
+    implementation "androidx.navigation:navigation-dynamic-features-fragment:$navComponentVersion"
+    androidTestImplementation "androidx.navigation:navigation-testing:$navComponentVersion"
 }

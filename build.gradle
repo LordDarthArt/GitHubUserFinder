@@ -48,6 +48,7 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        maven { url "http://jitpack.io" }
         maven { url "http://maven.appfoundry.be" }
         maven { url 'https://maven.google.com/' }
         maven { url  "http://dl.bintray.com/piasy/maven" }
@@ -56,10 +57,11 @@ buildscript {
     dependencies {
         apply from: "./dependencies.gradle"
 
-        classpath "com.android.tools.build:gradle:$gradle_version"
-        classpath "com.google.gms:google-services:$google_play_services_version"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "com.google.firebase:firebase-crashlytics-gradle:2.5.1"
+        classpath "com.android.tools.build:gradle:$gradleVersion"
+        classpath "com.google.gms:google-services:$googlePlayServicesVersion"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+        classpath "com.google.firebase:firebase-crashlytics-gradle:$crashlyticsGradleVersion"
+        classpath "android.arch.navigation:navigation-safe-args-gradle-plugin:$safeArgsGradleVersion"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -69,6 +71,7 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        maven { url "http://jitpack.io" }
         maven { url "http://maven.appfoundry.be" }
         maven { url 'https://maven.google.com/' }
         maven { url  "http://dl.bintray.com/piasy/maven" }

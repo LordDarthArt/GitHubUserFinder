@@ -1,22 +1,20 @@
-package tk.lorddarthart.githubuserfinder.view.fragment.main.adapter
+package tk.lorddarthart.githubuserfinder.view.main.search.adapter
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.squareup.picasso.Picasso
+import com.bumptech.glide.Glide
 import tk.lorddarthart.githubuserfinder.R
-import tk.lorddarthart.githubuserfinder.application.App
-import tk.lorddarthart.githubuserfinder.domain.local.model.User
+import tk.lorddarthart.githubuserfinder.domain.local.model.UserItem
 import tk.lorddarthart.githubuserfinder.databinding.ItemSingleUserBinding
 import tk.lorddarthart.githubuserfinder.common.helper.SameCallback
 
-class SearchAdapter : ListAdapter<User, SearchAdapter.SearchViewHolder>(SameCallback<User>()) {
+class SearchAdapter : ListAdapter<UserItem, SearchAdapter.SearchViewHolder>(SameCallback<UserItem>()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchViewHolder {
-        val binding =
-            ItemSingleUserBinding.inflate(LayoutInflater.from(App.instance), parent, false)
+        val binding = ItemSingleUserBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return SearchViewHolder(binding)
     }
 
@@ -30,16 +28,14 @@ class SearchAdapter : ListAdapter<User, SearchAdapter.SearchViewHolder>(SameCall
     override fun getItemId(position: Int) = position.toLong()
 
     private fun animatedImgLoad(urlString: String?, holder: SearchViewHolder) {
-        Picasso.get().load(urlString)
+        Glide.with(holder.binding.root.context).load(urlString)
             .placeholder(R.drawable.ic_preload)
             .error(R.drawable.ic_account)
-            .resize(40, 40)
             .centerCrop()
             .into(holder.binding.profileImage)
     }
 
-    inner class SearchViewHolder(val binding: ItemSingleUserBinding) :
-        RecyclerView.ViewHolder(binding.root) {
+    inner class SearchViewHolder(val binding: ItemSingleUserBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(position: Int) {
             val user = currentList[position]
             binding.apply {

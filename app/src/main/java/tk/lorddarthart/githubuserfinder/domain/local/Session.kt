@@ -1,4 +1,4 @@
-package tk.lorddarthart.githubuserfinder.domain.local.model
+package tk.lorddarthart.githubuserfinder.domain.local
 
 import android.net.Uri
 

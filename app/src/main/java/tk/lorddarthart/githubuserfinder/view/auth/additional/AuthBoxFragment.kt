@@ -1,4 +1,4 @@
-package tk.lorddarthart.githubuserfinder.view.fragment.auth.additional
+package tk.lorddarthart.githubuserfinder.view.auth.additional
 
 import android.content.Intent
 import android.os.Bundle
@@ -6,8 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.activityViewModels
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -16,6 +15,9 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import org.kodein.di.DI
+import org.kodein.di.DIAware
+import org.kodein.di.android.x.closestDI
 import tk.lorddarthart.githubuserfinder.R
 import tk.lorddarthart.githubuserfinder.application.App
 import tk.lorddarthart.githubuserfinder.view.base.BaseFragment
@@ -23,44 +25,31 @@ import tk.lorddarthart.githubuserfinder.databinding.ItemAuthBoxBinding
 import tk.lorddarthart.githubuserfinder.common.constants.IntConstants.GOOGLE_SIGN_IN_CODE
 import tk.lorddarthart.githubuserfinder.common.logs.Loggable
 import tk.lorddarthart.githubuserfinder.common.logs.logDebug
+import tk.lorddarthart.githubuserfinder.di.activityScopedFragmentViewModel
+import tk.lorddarthart.githubuserfinder.di.fragmentViewModel
+import tk.lorddarthart.githubuserfinder.view.activity.MainActivityViewModel
 
-class AuthBoxFragment : BaseFragment(), Loggable {
-    private lateinit var authBoxBinding: ItemAuthBoxBinding
+class AuthBoxFragment : BaseFragment(), Loggable, DIAware {
+    override val di: DI by closestDI()
+
+    private lateinit var binding: ItemAuthBoxBinding
     private lateinit var googleSignInOptons: GoogleSignInOptions
     private lateinit var googleSignInClient: GoogleSignInClient
     private lateinit var auth: FirebaseAuth
 
-    private val authBoxViewModel: AuthBoxViewModel by lazy {
-        ViewModelProvider(
-            this
-        )[AuthBoxViewModel::class.java]
-    }
-
-    private val currentSignInObserver = Observer<SignInVariants> { currentSignIn ->
-        when (currentSignIn) {
-            SignInVariants.GOOGLE, SignInVariants.FACEBOOK -> {
-                signIn()
-            }
-            else -> {
-                // do nothing
-            }
-        }
-    }
+    private val viewModel: AuthBoxViewModel by fragmentViewModel()
+    private val mainActivityViewModel: MainActivityViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        authBoxBinding = ItemAuthBoxBinding.inflate(
-            inflater,
-            container,
-            false
-        )
+    ): View {
+        binding = ItemAuthBoxBinding.inflate(inflater, container, false)
 
         initialization()
 
-        return authBoxBinding.root
+        return binding.root
     }
 
     private fun initialization() {
@@ -70,7 +59,12 @@ class AuthBoxFragment : BaseFragment(), Loggable {
     }
 
     private fun hangObservers() {
-        authBoxViewModel.currentSignInLiveData.observe(this, currentSignInObserver)
+        viewModel.currentSignInLiveData.observe(viewLifecycleOwner) { currentSignIn ->
+            when (currentSignIn) {
+                is SignInVariants.Google, is SignInVariants.Facebook -> { signIn() }
+                else -> { /* do nothing */ }
+            }
+        }
     }
 
     private fun start() {
@@ -79,29 +73,23 @@ class AuthBoxFragment : BaseFragment(), Loggable {
             .requestEmail()
             .build()
 
-        googleSignInClient = GoogleSignIn.getClient(activity, googleSignInOptons)
+        googleSignInClient = GoogleSignIn.getClient(requireActivity(), googleSignInOptons)
 
         auth = FirebaseAuth.getInstance()
     }
 
     private fun signIn() {
         val signInIntent = googleSignInClient.signInIntent
-        when (authBoxViewModel.getCurrentSignIn()) {
-            SignInVariants.GOOGLE -> {
-                startActivityForResult(signInIntent, GOOGLE_SIGN_IN_CODE)
-            }
-            SignInVariants.FACEBOOK -> {
-                // do something
-            }
-            else -> {
-                // do nothing
-            }
+        when (viewModel.getCurrentSignIn()) {
+            SignInVariants.Google -> { startActivityForResult(signInIntent, GOOGLE_SIGN_IN_CODE) }
+            SignInVariants.Facebook -> { /* do something */ }
+            else -> { /* do nothing */ }
         }
     }
 
     private fun initListeners() {
-        authBoxBinding.authBoxGoogle.setOnClickListener {
-            authBoxViewModel.setCurrentSignIn(SignInVariants.GOOGLE)
+        binding.authBoxGoogle.setOnClickListener {
+            viewModel.setCurrentSignIn(SignInVariants.Google)
         }
     }
 
@@ -118,8 +106,8 @@ class AuthBoxFragment : BaseFragment(), Loggable {
             } catch (e: ApiException) {
                 Log.e(this::class.java.simpleName, "Error", e)
                 Snackbar.make(
-                    activity.findViewById<View>(android.R.id.content),
-                    "Auth error: " + e.cause + ", " + e.message!!,
+                    requireActivity().findViewById<View>(android.R.id.content),
+                    "Auth error: ${e.cause}, ${e.message ?: "no error message"}",
                     Snackbar.LENGTH_LONG
                 ).show()
             }
@@ -127,27 +115,20 @@ class AuthBoxFragment : BaseFragment(), Loggable {
     }
 
     private fun firebaseAuthWithGoogle(acct: GoogleSignInAccount) {
-        logDebug { "firebaseAuthWithGoogle:" + acct.id!! }
+        logDebug { "firebaseAuthWithGoogle:${acct.id}" }
 
         val credential = GoogleAuthProvider.getCredential(acct.idToken, null)
         auth.signInWithCredential(credential)
-            .addOnCompleteListener(activity) { task ->
+            .addOnCompleteListener(requireActivity()) { task ->
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
                     logDebug { "signInWithCredential:success" }
-                    App.user = auth.currentUser
-                    activity.mainActivityViewModel.setCurrentUser(App.user)
+                    mainActivityViewModel.setCurrentUser(auth.currentUser)
                 } else {
                     // If sign in fails, display a message to the user.
                     logDebug { "signInWithCredential:failure" }
-                    Snackbar.make(
-                        activity.findViewById(android.R.id.content),
-                        "Authentication Failed.",
-                        Snackbar.LENGTH_SHORT
-                    ).show()
+                    Snackbar.make(requireActivity().findViewById(android.R.id.content), "Authentication Failed.", Snackbar.LENGTH_SHORT).show()
                 }
-
-                // ...
             }
     }
 }

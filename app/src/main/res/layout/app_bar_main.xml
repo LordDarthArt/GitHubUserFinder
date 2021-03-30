@@ -6,9 +6,9 @@
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".view.fragment.main.MainFragment">
+        tools:context=".view.main.search.SearchFragment">
 
-        <include layout="@layout/fragment_main" />
+        <include layout="@layout/fragment_search" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>
