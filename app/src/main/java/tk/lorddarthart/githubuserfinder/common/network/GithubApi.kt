@@ -12,9 +12,9 @@ import tk.lorddarthart.githubuserfinder.common.constants.UrlConstants.SEARCH_USE
 interface GithubApi {
     @GET(SEARCH_USER_URL)
     fun getUserByName(
-        @Query(value = SEARCH_PARAMETER_Q, encoded = true) login: String,
-        @Query(value = SEARCH_PARAMETER_PAGE, encoded = true) page: Int,
-        @Query(value = SEARCH_PARAMETER_PER_PAGE, encoded = true) perPage: Int
+        @Query(value = SEARCH_PARAMETER_Q, encoded = true) login: String?,
+        @Query(value = SEARCH_PARAMETER_PAGE, encoded = true) page: Int?,
+        @Query(value = SEARCH_PARAMETER_PER_PAGE, encoded = true) perPage: Int?
     ): Flow<UserListObject>
 
     @GET(SEARCH_USER_URL)

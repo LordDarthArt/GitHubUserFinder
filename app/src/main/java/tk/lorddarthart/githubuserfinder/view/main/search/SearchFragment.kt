@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,6 +21,8 @@ import org.kodein.di.android.x.closestDI
 import org.kodein.di.instance
 import tk.lorddarthart.githubuserfinder.R
 import tk.lorddarthart.githubuserfinder.common.helper.IOnBackPressed
+import tk.lorddarthart.githubuserfinder.common.helper.isDisplayedOnScreen
+import tk.lorddarthart.githubuserfinder.common.helper.setVisible
 import tk.lorddarthart.githubuserfinder.databinding.FragmentSearchBinding
 import tk.lorddarthart.githubuserfinder.di.activityScopedFragmentViewModel
 import tk.lorddarthart.githubuserfinder.domain.local.Session
@@ -33,7 +36,7 @@ class SearchFragment : BaseFragment(), IOnBackPressed, NavigationView.OnNavigati
 
     private lateinit var binding: FragmentSearchBinding
 
-    private val searchViewModelImpl: SearchViewModel by activityScopedFragmentViewModel()
+    private val viewModel: SearchViewModel by activityScopedFragmentViewModel()
     private val mainActivityViewModel: MainActivityViewModel by activityViewModels()
     private val searchAdapter: SearchAdapter by lazy { SearchAdapter().apply { setHasStableIds(true) } }
     private val session: Session by instance()
@@ -45,6 +48,10 @@ class SearchFragment : BaseFragment(), IOnBackPressed, NavigationView.OnNavigati
     ): View {
         binding = FragmentSearchBinding.inflate(inflater, container, false)
 
+        binding.viewModel = viewModel
+        binding.setOnTryAgainClick {
+            lifecycleScope.launch { request() }
+        }
         initialization()
 
         return binding.root
@@ -67,42 +74,21 @@ class SearchFragment : BaseFragment(), IOnBackPressed, NavigationView.OnNavigati
     }
 
     private fun hangObservers() {
-        searchViewModelImpl.apply {
+        viewModel.apply {
             searchStringLiveData.observe(viewLifecycleOwner) { searchString ->
-                if (!searchString.isNullOrBlank() && !searchViewModelImpl.beginNetworkRequest) {
-                    searchViewModelImpl.beginNetworkRequest = true
-                    searchViewModelImpl.apply { clearUserList(); setCurrentPage(1); showLoadingHideOthers() }
-                    lifecycleScope.launch { request() }
-                }
+                restartSearch(searchString)
             }
 
             userListLiveData.observe(viewLifecycleOwner) {
-                if ((binding.foundUsersList.adapter?.itemCount ?: 0) <= 0) {
-                    searchViewModelImpl.showNoResultsHideOthers()
-                } else {
-                    searchViewModelImpl.showLoadingHideOthers()
-                }
-                searchViewModelImpl.currentPage?.plus(1)?.let { nextPage -> searchViewModelImpl.setCurrentPage(nextPage) }
+                viewModel.page.get().plus(1).let { nextPage -> viewModel.setCurrentPage(nextPage) }
                 searchAdapter.submitList(it.toList())
             }
 
             errorLiveData.observe(viewLifecycleOwner) { errorMessage ->
                 errorMessage?.let { message ->
                     Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
-                    searchViewModelImpl.setErrorMessageToNull()
+                    viewModel.setErrorMessageToNull()
                 }
-            }
-
-            displayPagingLiveData.observe(viewLifecycleOwner) { show ->
-                binding.loadingNextPage.setVisible(show)
-            }
-
-            displayNoResultsLiveData.observe(viewLifecycleOwner) { show ->
-                binding.foundNone.setVisible(show)
-            }
-
-            displayTryAgainLiveData.observe(viewLifecycleOwner) { show ->
-                binding.tryAgain.setVisible(show)
             }
 
             currentUserLiveData.observe(viewLifecycleOwner) { firebaseUser ->
@@ -113,14 +99,14 @@ class SearchFragment : BaseFragment(), IOnBackPressed, NavigationView.OnNavigati
         }
     }
 
+    private fun restartSearch(searchString: String?) {
+        if (!searchString.isNullOrBlank()) {
+            viewModel.setCurrentPage(1)
+            lifecycleScope.launch { request() }
+        }
+    }
+
     private fun start() {
-//        with(activity) {
-//            setSupportActionBar(binding.toolbar)
-//            supportActionBar?.setDisplayHomeAsUpEnabled(true)
-//        }
-
-        searchViewModelImpl.begin()
-
         binding.foundUsersList.apply {
             layoutManager = LinearLayoutManager(activity)
             adapter = searchAdapter
@@ -128,7 +114,7 @@ class SearchFragment : BaseFragment(), IOnBackPressed, NavigationView.OnNavigati
             itemAnimator = null
         }
 
-        val googleSignInResults = searchViewModelImpl.getSignInResults(requireContext())
+        val googleSignInResults = viewModel.getSignInResults(requireContext())
 
         googleSignInResults?.let { user ->
             session.apply {
@@ -140,47 +126,21 @@ class SearchFragment : BaseFragment(), IOnBackPressed, NavigationView.OnNavigati
                 personPhoto = user.photoUrl
             }
         }
-
-//        with(binding.navView.getHeaderView(0)) {
-//            val userAvatar = findViewById<CircleImageView>(R.id.user_avatar)
-//            val userGivenName = findViewById<TextView>(R.id.user_given_name)
-//            val userEmail = findViewById<TextView>(R.id.user_email)
-//
-//            userGivenName.text = session.personGivenName
-//            userEmail.text = session.personEmail
-//            Glide.with(requireContext()).load(session.personPhoto)
-//                .placeholder(R.drawable.ic_account)
-//                .error(R.drawable.ic_account)
-//                .into(userAvatar)
-//        }
-
-//        val toggle = ActionBarDrawerToggle(
-//            activity,
-//            binding.drawerLayout,
-//            binding.toolbar,
-//            R.string.navigation_drawer_open,
-//            R.string.navigation_drawer_close
-//        )
-//        binding.drawerLayout.addDrawerListener(toggle)
-//        toggle.isDrawerIndicatorEnabled = true
-//        toggle.syncState()
     }
 
     private fun initListeners() {
-        binding.searchField.doAfterTextChanged { text -> searchViewModelImpl.setSearchString(text.toString()) }
+        binding.searchField.doAfterTextChanged { text -> viewModel.setSearchString(text.toString()) }
 
         binding.foundUsersList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
-                if (binding.loadingNextPage.isDisplayedOnScreen() && newState == SCROLL_STATE_IDLE && !searchViewModelImpl.beginNetworkRequest) {
-                    searchViewModelImpl.beginNetworkRequest = true
+                if (binding.loadingNextPage.isDisplayedOnScreen() && newState == SCROLL_STATE_IDLE && !viewModel.beginNetworkRequest) {
                     lifecycleScope.launch { request() }
                 }
             }
         })
 
         binding.tryAgain.setOnClickListener {
-            searchViewModelImpl.beginNetworkRequest = true
             lifecycleScope.launch { request() }
         }
     }
@@ -206,14 +166,13 @@ class SearchFragment : BaseFragment(), IOnBackPressed, NavigationView.OnNavigati
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(getString(R.string.sign_out))
             .setMessage(getString(R.string.sign_out_accept_message))
-            .setPositiveButton(getString(R.string.yes)) { _, _ -> searchViewModelImpl.signOut(requireContext()) }
+            .setPositiveButton(getString(R.string.yes)) { _, _ -> viewModel.signOut(requireContext()) }
             .setNeutralButton(getString(R.string.cancel)) { dialog, _ -> dialog.dismiss() }
             .show()
     }
 
-    private suspend fun request() {
-        delay(600)
-        searchViewModelImpl.fetchData()
+    private fun request() {
+        viewModel.fetchData()
     }
 
     override fun onBackPressed() {

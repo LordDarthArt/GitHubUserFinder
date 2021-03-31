@@ -13,6 +13,7 @@ import tk.lorddarthart.githubuserfinder.databinding.FragmentMainBinding
 import tk.lorddarthart.githubuserfinder.di.fragmentViewModel
 import tk.lorddarthart.githubuserfinder.view.base.BaseFragment
 import tk.lorddarthart.githubuserfinder.view.main.adapter.MainAdapter
+import tk.lorddarthart.githubuserfinder.view.main.favourite.FavouriteFragment
 import tk.lorddarthart.githubuserfinder.view.main.profile.ProfileFragment
 import tk.lorddarthart.githubuserfinder.view.main.search.SearchFragment
 
@@ -20,7 +21,7 @@ class MainFragment: BaseFragment(), DIAware {
     override val di: DI by closestDI()
     private lateinit var binding: FragmentMainBinding
 
-    private val fragmentsList = listOf(SearchFragment(), ProfileFragment())
+    private val fragmentsList = listOf(SearchFragment(), FavouriteFragment(), ProfileFragment())
     private val viewModel: MainViewModel by fragmentViewModel()
     private val mainAdapter: MainAdapter by lazy { MainAdapter(fragmentsList, this) }
 
@@ -38,7 +39,8 @@ class MainFragment: BaseFragment(), DIAware {
             viewModel.setCurrentTab(menuItem.itemId)
             when (menuItem.itemId) {
                 R.id.search_fragment -> { binding.navHostTabFragment.setCurrentItem(0, true); return@setOnNavigationItemSelectedListener true }
-                R.id.profile_fragment -> { binding.navHostTabFragment.setCurrentItem(1, true); return@setOnNavigationItemSelectedListener true }
+                R.id.favourite_fragment -> { binding.navHostTabFragment.setCurrentItem(1, true); return@setOnNavigationItemSelectedListener true }
+                R.id.profile_fragment -> { binding.navHostTabFragment.setCurrentItem(2, true); return@setOnNavigationItemSelectedListener true }
             }
             false
         }
@@ -49,6 +51,7 @@ class MainFragment: BaseFragment(), DIAware {
                     when (position) {
                         0 -> binding.bottomNavBar.menu.getItem(0).itemId
                         1 -> binding.bottomNavBar.menu.getItem(1).itemId
+                        2 -> binding.bottomNavBar.menu.getItem(2).itemId
                         else -> throw NotImplementedError("Unknown bottomnav id for page: $position")
                     }
                 )
@@ -57,9 +60,7 @@ class MainFragment: BaseFragment(), DIAware {
         })
 
         viewModel.currentTabLiveData.observe(viewLifecycleOwner) {
-            it?.let {
-                binding.bottomNavBar.selectedItemId = it
-            }
+            it?.let { binding.bottomNavBar.selectedItemId = it }
         }
 
         return binding.root

@@ -18,6 +18,8 @@
     <string name="sign_in">Sign In</string>
     <string name="menu_exit">Exit</string>
     <string name="search">Search</string>
+    <string name="favourite">Favourite</string>
+    <string name="profile">Profile</string>
     <string name="try_again">Try again</string>
     <string name="exit_accept_message">Are you sure you want to exit?</string>
     <string name="yes">Yes</string>

@@ -24,4 +24,6 @@
     <string name="sign_out_accept_message">Вы точно хотите выйти из Вашего текущего аккаунта?</string>
     <string name="type">Тип:</string>
     <string name="score">Очки:</string>
+    <string name="favourite">Избранное</string>
+    <string name="profile">Профиль</string>
 </resources>

@@ -11,9 +11,17 @@ import retrofit2.converter.gson.GsonConverterFactory
 import tk.lorddarthart.githubuserfinder.common.constants.UrlConstants
 import tk.lorddarthart.githubuserfinder.common.network.GithubApi
 import tk.lorddarthart.githubuserfinder.domain.local.Session
+import tk.lorddarthart.githubuserfinder.domain.repository.auth.AuthRepository
+import tk.lorddarthart.githubuserfinder.domain.repository.auth.AuthRepositoryImpl
+import tk.lorddarthart.githubuserfinder.domain.repository.profile.ProfileRepository
+import tk.lorddarthart.githubuserfinder.domain.repository.profile.ProfileRepositoryImpl
+import tk.lorddarthart.githubuserfinder.domain.repository.search.SearchRepository
+import tk.lorddarthart.githubuserfinder.domain.repository.search.SearchRepositoryImpl
 import tk.lorddarthart.githubuserfinder.view.activity.MainActivityViewModel
 import tk.lorddarthart.githubuserfinder.view.auth.AuthViewModel
 import tk.lorddarthart.githubuserfinder.view.auth.additional.AuthBoxViewModel
+import tk.lorddarthart.githubuserfinder.view.main.favourite.FavouriteFragment
+import tk.lorddarthart.githubuserfinder.view.main.favourite.FavouriteViewModel
 import tk.lorddarthart.githubuserfinder.view.main.profile.ProfileViewModel
 import tk.lorddarthart.githubuserfinder.view.main.search.SearchViewModel
 import java.util.concurrent.TimeUnit
@@ -27,11 +35,18 @@ val utilityModule = DI.Module("utility") {
     bind<GithubApi>() with singleton { (instance() as Retrofit).create(GithubApi::class.java) }
 }
 
+val repositoryModule = DI.Module("repository") {
+    bind<AuthRepository>() with singleton { AuthRepositoryImpl() }
+    bind<SearchRepository>() with singleton { SearchRepositoryImpl(instance()) }
+    bind<ProfileRepository>() with singleton { ProfileRepositoryImpl() }
+}
+
 val viewModelsModule = DI.Module("viewModels") {
     bind<ViewModelProvider.Factory>() with singleton { ViewModelFactory(this) }
     bindViewModel<MainActivityViewModel>() with  provider { MainActivityViewModel() }
     bindViewModel<AuthViewModel>() with provider { AuthViewModel() }
-    bindViewModel<SearchViewModel>() with provider { SearchViewModel() }
+    bindViewModel<SearchViewModel>() with provider { SearchViewModel(instance()) }
     bindViewModel<ProfileViewModel>() with provider { ProfileViewModel() }
     bindViewModel<AuthBoxViewModel>() with provider { AuthBoxViewModel() }
+    bindViewModel<FavouriteViewModel>() with provider { FavouriteViewModel() }
 }
