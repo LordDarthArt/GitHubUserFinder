@@ -29,7 +29,9 @@ class MainActivity : BaseActivity(), Loggable, DIAware {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
-        initialization()
+        if (savedInstanceState == null) {
+            initialization()
+        }
     }
 
     private fun initialization() {

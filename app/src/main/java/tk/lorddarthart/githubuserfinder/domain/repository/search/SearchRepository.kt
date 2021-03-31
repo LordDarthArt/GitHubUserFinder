@@ -4,5 +4,5 @@ import kotlinx.coroutines.flow.Flow
 import tk.lorddarthart.githubuserfinder.domain.local.model.UserItem
 
 interface SearchRepository {
-    fun getUser(login: String?, page: Int?, pageSize: Int?): Flow<List<UserItem>>
+    fun getUser(login: String?, page: Int?, pageSize: Int?): Flow<Pair<Int?, List<UserItem>?>>
 }

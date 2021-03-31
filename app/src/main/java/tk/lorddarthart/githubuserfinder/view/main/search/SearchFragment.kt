@@ -1,10 +1,12 @@
 package tk.lorddarthart.githubuserfinder.view.main.search
 
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.addCallback
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -49,9 +51,9 @@ class SearchFragment : BaseFragment(), IOnBackPressed, NavigationView.OnNavigati
         binding = FragmentSearchBinding.inflate(inflater, container, false)
 
         binding.viewModel = viewModel
-        binding.setOnTryAgainClick {
-            lifecycleScope.launch { request() }
-        }
+        binding.setOnTryAgainClick { lifecycleScope.launch { request() } }
+        binding.setOnSearchClick { viewModel.searchBarOpened.set(true) }
+        binding.setOnCloseSearchClick { viewModel.searchBarOpened.set(false) }
         initialization()
 
         return binding.root
@@ -76,12 +78,24 @@ class SearchFragment : BaseFragment(), IOnBackPressed, NavigationView.OnNavigati
     private fun hangObservers() {
         viewModel.apply {
             searchStringLiveData.observe(viewLifecycleOwner) { searchString ->
-                restartSearch(searchString)
+                if (!viewModel.loading.get()) viewModel.loading.set(true)
+                viewModel.setCurrentPage(1)
+                lifecycleScope.launch {
+                    delay(1000)
+                    if (searchString == viewModel.searchString) {
+                        restartSearch(searchString)
+                    }
+                }
             }
 
             userListLiveData.observe(viewLifecycleOwner) {
-                viewModel.page.get().plus(1).let { nextPage -> viewModel.setCurrentPage(nextPage) }
                 searchAdapter.submitList(it.toList())
+                if (viewModel.page.get() == 1 && viewModel.totalCount.get() < 30) {
+                    viewModel.loading.set(false)
+                } else {
+                    viewModel.page.get().plus(1)
+                        .let { nextPage -> viewModel.setCurrentPage(nextPage) }
+                }
             }
 
             errorLiveData.observe(viewLifecycleOwner) { errorMessage ->
@@ -129,19 +143,21 @@ class SearchFragment : BaseFragment(), IOnBackPressed, NavigationView.OnNavigati
     }
 
     private fun initListeners() {
-        binding.searchField.doAfterTextChanged { text -> viewModel.setSearchString(text.toString()) }
+        binding.apply {
+            searchField.doAfterTextChanged { text -> this@SearchFragment.viewModel.setSearchString(text.toString()) }
 
-        binding.foundUsersList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-                if (binding.loadingNextPage.isDisplayedOnScreen() && newState == SCROLL_STATE_IDLE && !viewModel.beginNetworkRequest) {
-                    lifecycleScope.launch { request() }
+            binding.foundUsersList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    super.onScrollStateChanged(recyclerView, newState)
+                    if (binding.loadingNextPage.isDisplayedOnScreen() && newState == SCROLL_STATE_IDLE && !this@SearchFragment.viewModel.beginNetworkRequest) {
+                        lifecycleScope.launch { request() }
+                    }
                 }
-            }
-        })
+            })
 
-        binding.tryAgain.setOnClickListener {
-            lifecycleScope.launch { request() }
+            requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+                showExitDialog()
+            }
         }
     }
 

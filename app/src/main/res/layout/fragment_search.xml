@@ -12,6 +12,18 @@
         <variable
             name="onTryAgainClick"
             type="android.view.View.OnClickListener" />
+
+        <variable
+            name="onSearchClick"
+            type="android.view.View.OnClickListener" />
+
+        <variable
+            name="onCloseSearchClick"
+            type="android.view.View.OnClickListener" />
+
+        <variable
+            name="onClearTermClick"
+            type="android.view.View.OnClickListener" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -26,7 +38,7 @@
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="56dp"
                 android:background="@color/colorPrimary"
                 android:theme="@style/AppTheme.AppBarOverlay">
 
@@ -36,20 +48,32 @@
                     android:layout_marginEnd="20dp"
                     android:orientation="horizontal">
 
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:text="@string/search"
+                        app:visibility="@{!viewModel.searchBarOpened}"
+                        style="@style/TextAppearance.AppCompat.Title"/>
+
                     <EditText
                         android:id="@+id/search_field"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_margin="8dp"
                         android:layout_weight="1"
+                        android:background="@android:color/transparent"
                         android:hint="@string/search_hint"
+                        app:visibility="@{viewModel.searchBarOpened}"
                         android:inputType="text" />
 
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:layout_margin="8dp"
-                        android:clickable="true"
+                        android:onClick="@{onClearTermClick}"
+                        app:visibility="@{viewModel.searchBarOpened}"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:src="@android:drawable/ic_menu_close_clear_cancel" />
 
@@ -57,9 +81,19 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:layout_margin="8dp"
-                        android:clickable="true"
+                        android:onClick="@{onSearchClick}"
+                        app:visibility="@{!viewModel.searchBarOpened}"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:src="@android:drawable/ic_menu_search" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_margin="8dp"
+                        android:onClick="@{onCloseSearchClick}"
+                        app:visibility="@{viewModel.searchBarOpened}"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@android:drawable/arrow_down_float" />
 
                 </LinearLayout>
 
@@ -115,16 +149,60 @@
                     android:layout_marginEnd="16dp"
                     android:layout_marginBottom="16dp"
                     android:text="@string/try_again"
-                    app:visibility="@{!viewModel.loading &amp;&amp; viewModel.tryAgainVisible}"
+                    android:onClick="@{onTryAgainClick}"
+                    app:visibility="@{!viewModel.loading &amp;&amp; viewModel.tryAgainVisible &amp;&amp; !viewModel.usersList.empty}"
                     app:layout_constraintEnd_toEndOf="@+id/loading_next_page"
                     app:layout_constraintStart_toStartOf="@+id/loading_next_page"
                     app:layout_constraintTop_toBottomOf="@+id/found_users_list" />
 
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:layout_weight="1"
+                    app:visibility="@{!viewModel.loading &amp;&amp; viewModel.tryAgainVisible &amp;&amp; viewModel.usersList.empty}">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_gravity="center"
+                        android:gravity="center">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            app:lineHeight="24sp"
+                            android:text="Error occured"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_marginStart="16dp"
+                            android:layout_marginTop="16dp"
+                            android:layout_marginEnd="16dp"
+                            android:layout_marginBottom="16dp"
+                            android:text="@string/try_again"
+                            android:onClick="@{onTryAgainClick}"
+                            app:layout_constraintEnd_toEndOf="@+id/loading_next_page"
+                            app:layout_constraintStart_toStartOf="@+id/loading_next_page"
+                            app:layout_constraintTop_toBottomOf="@+id/found_users_list" />
+
+                    </LinearLayout>
+
+                </FrameLayout>
+
                 <TextView
                     android:id="@+id/found_none"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="0dp"
                     android:layout_gravity="center"
+                    android:layout_weight="1"
                     android:gravity="center"
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"

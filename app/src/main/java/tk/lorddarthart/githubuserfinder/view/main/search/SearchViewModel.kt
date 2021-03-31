@@ -22,9 +22,13 @@ import tk.lorddarthart.githubuserfinder.domain.local.model.UserItem
 import tk.lorddarthart.githubuserfinder.domain.repository.search.SearchRepository
 
 class SearchViewModel(private val searchRepository: SearchRepository) : ViewModel() {
+    val searchString: String?
+        get() { return _searchStringLiveData.value }
+
     val loading = ObservableBoolean(false)
     val tryAgainVisible = ObservableBoolean(false)
     val searchBarOpened = ObservableBoolean(false)
+    val totalCount = ObservableInt()
     val usersList = ObservableField<List<UserItem>>(listOf())
 
     private val _userListLiveData = MutableLiveData<List<UserItem>>()
@@ -51,12 +55,12 @@ class SearchViewModel(private val searchRepository: SearchRepository) : ViewMode
         _searchStringLiveData.value = ""
         _currentUserLiveData.value = FirebaseAuth.getInstance().currentUser
         _userListLiveData.value = usersList.get()
-        loading.set(false)
+
     }
 
     fun fetchData() {
         tryAgainVisible.set(false)
-        loading.set(true)
+        if (!loading.get()) loading.set(true)
         viewModelScope.launch {
             searchRepository.getUser(_searchStringLiveData.value, page.get(), 30)
                 .catch {
@@ -65,11 +69,16 @@ class SearchViewModel(private val searchRepository: SearchRepository) : ViewMode
                     _errorLiveData.value = it.message
                 }
                 .collect {
-                    if (it.isEmpty()) {
+                    if (it.first != null && totalCount.get() != it.first) {
+                        totalCount.set(it.first!!)
+                    }
+                    if (it.second?.isEmpty() == true) {
                         loading.set(false)
                     } else {
                         val newList = usersList.get()?.toMutableList()
-                        newList?.addAll(it)
+                        it.second?.let {
+                            newList?.addAll(it)
+                        }
                         usersList.set(newList)
                         _userListLiveData.value = usersList.get()
                     }
