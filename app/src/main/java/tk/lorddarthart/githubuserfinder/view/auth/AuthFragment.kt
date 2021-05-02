@@ -4,10 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.addCallback
+import androidx.databinding.ViewDataBinding
+import androidx.lifecycle.ViewModel
 import androidx.navigation.fragment.findNavController
 import org.kodein.di.DI
 import org.kodein.di.DIAware
 import org.kodein.di.android.x.closestDI
+import tk.lorddarthart.githubuserfinder.BuildConfig
 import tk.lorddarthart.githubuserfinder.view.base.BaseFragment
 import tk.lorddarthart.githubuserfinder.view.auth.additional.AuthBoxFragment
 import tk.lorddarthart.githubuserfinder.databinding.FragmentAuthBinding
@@ -15,27 +19,28 @@ import tk.lorddarthart.githubuserfinder.di.fragmentViewModel
 
 class AuthFragment : BaseFragment(), DIAware {
     override val di: DI by closestDI()
-    private lateinit var binding: FragmentAuthBinding
 
-    private val viewModel: AuthViewModel by fragmentViewModel()
+    override val viewModel: AuthViewModel by fragmentViewModel()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun initBinding(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) {
         binding = FragmentAuthBinding.inflate(inflater, container, false)
+        (binding as FragmentAuthBinding).apply {
+            viewModel = this@AuthFragment.viewModel
+            lifecycleOwner = viewLifecycleOwner
 
-        binding.setOnMockPress { findNavController().navigate(AuthFragmentDirections.actionGlobalToMain()) }
-        initialization()
-
-        return binding.root
+            setOnMockPress { findNavController().navigate(AuthFragmentDirections.actionGlobalToMain()) }
+        }
     }
 
-    private fun initialization() {
-        start()
+    override fun initListeners() {
+        (binding as FragmentAuthBinding).apply {
+            requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+                showExitDialog()
+            }
+        }
     }
 
-    private fun start() {
-        requireActivity().supportFragmentManager
-            .beginTransaction()
-            .replace(binding.authFragment.id, AuthBoxFragment())
-            .commit()
+    override fun start() {
+        viewModel.debug.set(BuildConfig.DEBUG)
     }
 }

@@ -32,15 +32,12 @@
         android:orientation="vertical">
 
         <com.google.android.material.appbar.AppBarLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:id="@+id/nav_appbar"
+            style="@style/NavAppBarTheme">
 
             <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:background="@color/colorPrimary"
-                android:theme="@style/AppTheme.AppBarOverlay">
+                android:id="@+id/nav_toolbar"
+                style="@style/NavAppBarTheme">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -55,7 +52,8 @@
                         android:gravity="center_vertical"
                         android:text="@string/search"
                         app:visibility="@{!viewModel.searchBarOpened}"
-                        style="@style/TextAppearance.AppCompat.Title"/>
+                        style="@style/TextAppearance.AppCompat.Title.Inverse"
+                        android:textColor="@color/not_selected"/>
 
                     <EditText
                         android:id="@+id/search_field"
@@ -66,7 +64,10 @@
                         android:background="@android:color/transparent"
                         android:hint="@string/search_hint"
                         app:visibility="@{viewModel.searchBarOpened}"
-                        android:inputType="text" />
+                        android:inputType="text"
+                        style="@style/TextAppearance.AppCompat.Title.Inverse"
+                        android:textColor="@color/not_selected"
+                        android:textColorHint="#22000000"/>
 
                     <ImageView
                         android:layout_width="wrap_content"
@@ -120,6 +121,7 @@
                     android:layout_height="wrap_content"
                     app:visibility="@{!viewModel.usersList.empty}"
                     android:overScrollMode="never"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -134,7 +136,7 @@
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="16dp"
                     android:paddingBottom="16dp"
-                    app:visibility="@{viewModel.loading &amp;&amp; !viewModel.tryAgainVisible}"
+                    app:visibility="@{!viewModel.usersList.empty &amp;&amp; viewModel.loading &amp;&amp; !viewModel.tryAgainVisible}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/found_users_list" />
@@ -154,6 +156,24 @@
                     app:layout_constraintEnd_toEndOf="@+id/loading_next_page"
                     app:layout_constraintStart_toStartOf="@+id/loading_next_page"
                     app:layout_constraintTop_toBottomOf="@+id/found_users_list" />
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:layout_weight="1"
+                    app:visibility="@{viewModel.usersList.empty &amp;&amp; viewModel.loading &amp;&amp; !viewModel.tryAgainVisible}">
+
+                    <ProgressBar
+                        android:id="@+id/loading_next_page_full"
+                        style="?android:attr/progressBarStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"/>
+
+                </FrameLayout>
 
                 <FrameLayout
                     android:layout_width="match_parent"

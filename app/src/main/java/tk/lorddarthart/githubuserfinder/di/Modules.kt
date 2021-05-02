@@ -10,6 +10,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import tk.lorddarthart.githubuserfinder.common.constants.UrlConstants
 import tk.lorddarthart.githubuserfinder.common.network.GithubApi
+import tk.lorddarthart.githubuserfinder.domain.local.MainTabConverter
 import tk.lorddarthart.githubuserfinder.domain.local.Session
 import tk.lorddarthart.githubuserfinder.domain.repository.auth.AuthRepository
 import tk.lorddarthart.githubuserfinder.domain.repository.auth.AuthRepositoryImpl
@@ -33,6 +34,7 @@ val utilityModule = DI.Module("utility") {
     bind<OkHttpClient>() with singleton { OkHttpClient.Builder().dispatcher(instance()).addInterceptor(instance() as HttpLoggingInterceptor).callTimeout(30, TimeUnit.SECONDS).readTimeout(30, TimeUnit.SECONDS).build() }
     bind<Retrofit>() with singleton { Retrofit.Builder().baseUrl(UrlConstants.BASE_URL).client(instance()).addCallAdapterFactory(FlowCallAdapterFactory.create()).addConverterFactory(GsonConverterFactory.create()).build() }
     bind<GithubApi>() with singleton { (instance() as Retrofit).create(GithubApi::class.java) }
+    bind<MainTabConverter>() with singleton { MainTabConverter() }
 }
 
 val repositoryModule = DI.Module("repository") {

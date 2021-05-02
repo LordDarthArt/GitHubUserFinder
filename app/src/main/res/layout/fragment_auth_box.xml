@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".view.auth.additional.AuthBoxFragment">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="tk.lorddarthart.githubuserfinder.view.auth.additional.AuthBoxViewModel" />
+
+        <variable
+            name="onSignInWithGoogleClick"
+            type="android.view.View.OnClickListener" />
+
+        <variable
+            name="onSignInWithGithubClick"
+            type="android.view.View.OnClickListener" />
+
+        <variable
+            name="onSignInWithFacebookClick"
+            type="android.view.View.OnClickListener" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/auth_box_title"
+            style="@style/AuthBoxTitle"
+            android:text="@string/sign_in" />
+
+        <LinearLayout
+            android:id="@+id/auth_box"
+            android:layout_width="wrap_content"
+            android:layout_height="66dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/auth_box_google"
+                style="@style/AuthButtonIconItem"
+                android:onClick="@{onSignInWithGoogleClick}"
+                app:srcCompat="@drawable/ic_auth_google" />
+
+            <ImageView
+                android:id="@+id/auth_box_github"
+                style="@style/AuthButtonIconItem"
+                android:onClick="@{onSignInWithGithubClick}"
+                app:srcCompat="@drawable/ic_auth_github" />
+
+            <ImageView
+                android:id="@+id/auth_box_facebook"
+                style="@style/AuthButtonIconItem"
+                android:onClick="@{onSignInWithFacebookClick}"
+                app:srcCompat="@drawable/ic_auth_facebook" />
+        </LinearLayout>
+    </LinearLayout>
+</layout>

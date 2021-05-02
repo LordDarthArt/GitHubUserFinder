@@ -1,6 +1,6 @@
 package tk.lorddarthart.githubuserfinder.view.main.profile
 
-import androidx.lifecycle.ViewModel
+import tk.lorddarthart.githubuserfinder.view.base.BaseViewModel
 
-class ProfileViewModel: ViewModel() {
+class ProfileViewModel : BaseViewModel() {
 }

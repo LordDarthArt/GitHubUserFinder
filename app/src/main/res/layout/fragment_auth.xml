@@ -6,6 +6,9 @@
 
     <data>
         <variable
+            name="viewModel"
+            type="tk.lorddarthart.githubuserfinder.view.auth.AuthViewModel" />
+        <variable
             name="onMockPress"
             type="android.view.View.OnClickListener" />
     </data>
@@ -15,21 +18,25 @@
         android:layout_height="match_parent"
         android:background="@color/colorPrimary">
 
-        <FrameLayout
+        <androidx.fragment.app.FragmentContainerView
             android:id="@+id/auth_fragment"
+            android:name="androidx.navigation.fragment.NavHostFragment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:layout="@layout/item_auth_box" />
+            app:navGraph="@navigation/auth_graph"
+            app:defaultNavHost="false"/>
 
-        <Button
+        <TextView
+            android:id="@+id/auth_footer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/common_google_signin_btn_text_light_default"
+            android:text="Continue without sign in (DEBUG)"
+            android:theme="@style/AuthBoxTitle"
+            android:textColor="@color/auth_items_selector"
+            android:layout_gravity="center_horizontal|bottom"
+            android:padding="16dp"
+            app:visibility="@{viewModel.debug}"
             android:onClick="@{onMockPress}"/>
 
     </FrameLayout>

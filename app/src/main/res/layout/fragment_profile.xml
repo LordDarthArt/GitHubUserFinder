@@ -3,17 +3,31 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".view.main.profile.ProfileFragment">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="tk.lorddarthart.githubuserfinder.view.main.profile.ProfileViewModel" />
+    </data>
+
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/nav_appbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            app:elevation="0dp"
+            android:translationZ="0.1dp">
 
             <androidx.appcompat.widget.Toolbar
+                android:id="@+id/nav_toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:elevation="0dp"
+                android:translationZ="0dp"
+                app:title="@string/profile"/>
 
         </com.google.android.material.appbar.AppBarLayout>
 

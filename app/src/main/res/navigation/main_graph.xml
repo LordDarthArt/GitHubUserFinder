@@ -8,19 +8,17 @@
     <action
         android:id="@+id/action_global_to_auth"
         app:destination="@id/auth_fragment"
-        app:enterAnim="@android:anim/slide_in_left"
-        app:exitAnim="@android:anim/slide_out_right"
-        app:popEnterAnim="@android:anim/slide_in_left"
-        app:popExitAnim="@android:anim/slide_out_right"/>
+        app:enterAnim="@anim/slide_in_left"
+        app:exitAnim="@anim/slide_out_left"
+        app:popEnterAnim="@anim/slide_in_right"
+        app:popExitAnim="@anim/slide_out_right" />
 
     <action
         android:id="@+id/action_global_to_main"
         app:destination="@id/main_fragment"
         app:popUpToInclusive="true"
-        app:enterAnim="@android:anim/slide_in_left"
-        app:exitAnim="@android:anim/slide_out_right"
-        app:popEnterAnim="@android:anim/slide_in_left"
-        app:popExitAnim="@android:anim/slide_out_right"/>
+        app:enterAnim="@anim/slide_in_left"
+        app:popEnterAnim="@anim/slide_in_right" />
 
     <fragment
         android:id="@+id/main_fragment"

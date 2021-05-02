@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/auth_graph"
+    app:startDestination="@id/authBoxFragment">
+
+    <fragment
+        android:id="@+id/authBoxFragment"
+        android:name="tk.lorddarthart.githubuserfinder.view.auth.additional.AuthBoxFragment"
+        android:label="fragment_auth_box"
+        tools:layout="@layout/fragment_auth_box" />
+</navigation>

@@ -1,11 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#008577</color>
-    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorPrimary">#FDFDFD</color>
+    <color name="colorPrimaryDark">#F2F2F2</color>
     <color name="colorAccent">#D81B60</color>
 
     <!--Base colors-->
     <color name="baseText">#FFFFFF</color>
     <color name="baseFieldsTransparency">#55FFFFFF</color>
     <color name="baseLinkColor">#0000FF</color>
+
+    <color name="blackTransparent">#B7B7B7</color>
+    <color name="blackTransparentPressed">#808080</color>
+    <color name="authBoxTitleColor">@color/blackTransparent</color>
+    <color name="authBoxTitlePressedColor">@color/blackTransparentPressed</color>
+
+    <color name="bottom_nav_bg_color">#FFFFFF</color>
+    <color name="not_selected">#9E9E9E</color>
+    <color name="favourite_selected">#D91E18</color>
+    <color name="favourite_selected_tint">#77D91E18</color>
+    <color name="search_selected">#1BA39C</color>
+    <color name="search_selected_tint">#771BA39C</color>
+    <color name="profile_selected">#2574A9</color>
+    <color name="profile_selected_tint">#772574A9</color>
 </resources>

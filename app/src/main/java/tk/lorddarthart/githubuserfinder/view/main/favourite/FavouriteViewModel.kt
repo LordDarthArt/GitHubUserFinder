@@ -1,4 +1,6 @@
 package tk.lorddarthart.githubuserfinder.view.main.favourite
 
-class FavouriteViewModel {
+import tk.lorddarthart.githubuserfinder.view.base.BaseViewModel
+
+class FavouriteViewModel : BaseViewModel() {
 }

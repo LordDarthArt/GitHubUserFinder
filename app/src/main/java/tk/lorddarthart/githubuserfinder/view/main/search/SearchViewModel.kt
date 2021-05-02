@@ -18,55 +18,50 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import tk.lorddarthart.githubuserfinder.common.helper.Event
+import tk.lorddarthart.githubuserfinder.common.helper.SingleLiveEvent
 import tk.lorddarthart.githubuserfinder.domain.local.model.UserItem
 import tk.lorddarthart.githubuserfinder.domain.repository.search.SearchRepository
+import tk.lorddarthart.githubuserfinder.view.base.BaseViewModel
 
-class SearchViewModel(private val searchRepository: SearchRepository) : ViewModel() {
-    val searchString: String?
-        get() { return _searchStringLiveData.value }
-
+class SearchViewModel(private val searchRepository: SearchRepository) : BaseViewModel() {
+    val searchString = ObservableField("")
     val loading = ObservableBoolean(false)
     val tryAgainVisible = ObservableBoolean(false)
     val searchBarOpened = ObservableBoolean(false)
     val totalCount = ObservableInt()
     val usersList = ObservableField<List<UserItem>>(listOf())
 
-    private val _userListLiveData = MutableLiveData<List<UserItem>>()
-    val userListLiveData: LiveData<List<UserItem>>
+    private val _userListLiveData = MutableLiveData<Event<List<UserItem>>>()
+    val userListLiveData: LiveData<Event<List<UserItem>>>
         get() = _userListLiveData
 
-    private val _searchStringLiveData = MutableLiveData<String?>()
-    val searchStringLiveData: LiveData<String?>
+    private val _searchStringLiveData = MutableLiveData<Event<String?>>()
+    val searchStringLiveData: LiveData<Event<String?>>
         get() = _searchStringLiveData
 
     val page = ObservableInt(1)
 
-    private val _errorLiveData = MutableLiveData<String?>()
-    val errorLiveData: LiveData<String?>
+    private val _errorLiveData = MutableLiveData<Event<String?>>()
+    val errorLiveData: LiveData<Event<String?>>
         get() = _errorLiveData
-
-    private val _currentUserLiveData = MutableLiveData<FirebaseUser?>()
-    val currentUserLiveData: LiveData<FirebaseUser?>
-        get() = _currentUserLiveData
 
     var beginNetworkRequest = false
 
     init {
-        _searchStringLiveData.value = ""
-        _currentUserLiveData.value = FirebaseAuth.getInstance().currentUser
-        _userListLiveData.value = usersList.get()
-
+        _currentUserLiveData.value = Event(FirebaseAuth.getInstance().currentUser)
+        usersList.get()?.let { _userListLiveData.value = Event(it) }
     }
 
     fun fetchData() {
         tryAgainVisible.set(false)
         if (!loading.get()) loading.set(true)
         viewModelScope.launch {
-            searchRepository.getUser(_searchStringLiveData.value, page.get(), 30)
+            searchRepository.getUser(searchString.get(), page.get(), 30)
                 .catch {
                     loading.set(false)
                     tryAgainVisible.set(true)
-                    _errorLiveData.value = it.message
+                    _errorLiveData.value = Event(it.message)
                 }
                 .collect {
                     if (it.first != null && totalCount.get() != it.first) {
@@ -76,42 +71,39 @@ class SearchViewModel(private val searchRepository: SearchRepository) : ViewMode
                         loading.set(false)
                     } else {
                         val newList = usersList.get()?.toMutableList()
-                        it.second?.let {
-                            newList?.addAll(it)
-                        }
+                        it.second?.let { newList?.addAll(it) }
                         usersList.set(newList)
-                        _userListLiveData.value = usersList.get()
+                        usersList.get()?.let { _userListLiveData.value = Event(it) }
                     }
                 }
         }
     }
 
     fun setSearchString(searchString: String?) {
-        _searchStringLiveData.value = searchString
+        if (this.searchString.get() != searchString) {
+            this.searchString.set(searchString)
+            _searchStringLiveData.value = Event(this.searchString.get())
+        }
     }
 
     fun setCurrentPage(page: Int) {
-        if (page == 1 && usersList.get()?.isEmpty() == false) { usersList.set(listOf()); _userListLiveData.value = usersList.get() }
-        if (page > 0) this.page.set(page)
-    }
+        if (page == 1 && usersList.get()?.isEmpty() == false) {
+            usersList.set(listOf())
+        }
 
-    fun setErrorMessageToNull() {
-        _errorLiveData.value = null
+        if (page > 0) this.page.set(page)
     }
 
     fun getSignInResults(context: Context): GoogleSignInAccount? {
         return GoogleSignIn.getLastSignedInAccount(context)
     }
 
-    fun getCurrentlySignedInUserScope(context: Context): GoogleSignInClient? {
-        return GoogleSignIn.getClient(context, GoogleSignInOptions.DEFAULT_SIGN_IN)
+    fun notifyUsersList() {
+        usersList.get()?.let { _userListLiveData.value = Event(it) }
     }
 
-    fun signOut(context: Context) {
-        FirebaseAuth.getInstance().signOut()
-
-        getCurrentlySignedInUserScope(context)?.signOut()?.addOnCompleteListener {
-            _currentUserLiveData.value = null
-        }
+    fun setNoResults() {
+        usersList.set(listOf())
+        usersList.get()?.let { _userListLiveData.value = Event(it) }
     }
 }

@@ -12,7 +12,6 @@ import org.kodein.di.android.closestDI
 import tk.lorddarthart.githubuserfinder.R
 import tk.lorddarthart.githubuserfinder.view.base.BaseActivity
 import tk.lorddarthart.githubuserfinder.databinding.ActivityMainBinding
-import tk.lorddarthart.githubuserfinder.common.helper.IOnBackPressed
 import tk.lorddarthart.githubuserfinder.common.logs.Loggable
 import tk.lorddarthart.githubuserfinder.common.logs.logDebug
 import tk.lorddarthart.githubuserfinder.di.activityViewModel
@@ -27,6 +26,7 @@ class MainActivity : BaseActivity(), Loggable, DIAware {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+//        FacebookSdk.sdkInitialize(this)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
         if (savedInstanceState == null) {
@@ -67,16 +67,6 @@ class MainActivity : BaseActivity(), Loggable, DIAware {
             } else {
                 viewModel.setCurrentFragment(CurrentScreen.MainScreen)
             }
-        }
-    }
-
-    override fun onBackPressed() {
-        val currentFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
-
-        if (currentFragment is IOnBackPressed) {
-            currentFragment.onBackPressed()
-        } else {
-            super.onBackPressed()
         }
     }
 

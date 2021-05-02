@@ -10,19 +10,17 @@ import org.kodein.di.android.x.closestDI
 import tk.lorddarthart.githubuserfinder.databinding.FragmentFavouriteBinding
 import tk.lorddarthart.githubuserfinder.di.activityScopedFragmentViewModel
 import tk.lorddarthart.githubuserfinder.view.base.BaseFragment
+import tk.lorddarthart.githubuserfinder.view.base.BaseTabFragment
 
-class FavouriteFragment: BaseFragment(), DIAware {
+class FavouriteFragment: BaseTabFragment(), DIAware {
     override val di: DI by closestDI()
-    private lateinit var binding: FragmentFavouriteBinding
+    override val viewModel: FavouriteViewModel by activityScopedFragmentViewModel()
 
-    private val viewModel: FavouriteViewModel by activityScopedFragmentViewModel()
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun initBinding(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) {
         binding = FragmentFavouriteBinding.inflate(inflater, container, false)
-        return binding.root
+        (binding as? FragmentFavouriteBinding)?.apply {
+            viewModel = this@FavouriteFragment.viewModel
+            lifecycleOwner = viewLifecycleOwner
+        }
     }
 }

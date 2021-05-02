@@ -13,8 +13,65 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="SearchTabTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
+        <item name="colorControlHighlight">@color/search_selected_tint</item>
+    </style>
+
+    <style name="FavouriteTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
+        <item name="colorControlHighlight">@color/favourite_selected_tint</item>
+    </style>
+
+    <style name="ProfileTabTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
+        <item name="colorControlHighlight">@color/profile_selected_tint</item>
+    </style>
+
+    <style name="AuthBoxTitle">
+        <item name="android:textColor">@color/authBoxTitleColor</item>
+        <item name="android:textSize">16sp</item>
+        <item name="lineHeight">24sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="textAllCaps">true</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="AuthButtonIconItem">
+        <item name="android:tint">@color/auth_items_selector</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:layout_weight">1</item>
+    </style>
+
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="ExitAlertDialogTheme" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
+        <item name="buttonBarNeutralButtonStyle">@style/StandartNegativeButtonStyle</item>
+        <item name="buttonBarNegativeButtonStyle">@style/StandartNegativeButtonStyle</item>
+        <item name="buttonBarPositiveButtonStyle">@style/ExitPositiveButtonStyle</item>
+    </style>
+
+    <style name="NavToolbarTheme" parent="AppTheme.AppBarOverlay">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">56dp</item>
+    </style>
+
+    <style name="NavAppBarTheme">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="elevation">0dp</item>
+    </style>
+
+    <style name="StandartNegativeButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/blackTransparentPressed</item>
+    </style>
+
+    <style name="ExitPositiveButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/favourite_selected</item>
+    </style>
 
 </resources>

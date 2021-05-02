@@ -2,6 +2,8 @@ package tk.lorddarthart.githubuserfinder.view.main.search
 
 import android.os.Bundle
 import android.os.Handler
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -9,106 +11,92 @@ import android.view.ViewGroup
 import androidx.activity.addCallback
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY
 import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.*
+import okhttp3.internal.notify
 import org.kodein.di.DI
 import org.kodein.di.DIAware
 import org.kodein.di.android.x.closestDI
 import org.kodein.di.instance
 import tk.lorddarthart.githubuserfinder.R
-import tk.lorddarthart.githubuserfinder.common.helper.IOnBackPressed
-import tk.lorddarthart.githubuserfinder.common.helper.isDisplayedOnScreen
-import tk.lorddarthart.githubuserfinder.common.helper.setVisible
+import tk.lorddarthart.githubuserfinder.common.helper.*
 import tk.lorddarthart.githubuserfinder.databinding.FragmentSearchBinding
 import tk.lorddarthart.githubuserfinder.di.activityScopedFragmentViewModel
 import tk.lorddarthart.githubuserfinder.domain.local.Session
 import tk.lorddarthart.githubuserfinder.view.activity.MainActivityViewModel
 import tk.lorddarthart.githubuserfinder.view.base.BaseFragment
+import tk.lorddarthart.githubuserfinder.view.base.BaseTabFragment
+import tk.lorddarthart.githubuserfinder.view.main.MainFragmentDirections
 import tk.lorddarthart.githubuserfinder.view.main.search.adapter.SearchAdapter
+import kotlin.random.Random
 import kotlin.system.exitProcess
 
-class SearchFragment : BaseFragment(), IOnBackPressed, NavigationView.OnNavigationItemSelectedListener, DIAware {
+class SearchFragment : BaseTabFragment(), NavigationView.OnNavigationItemSelectedListener, DIAware {
     override val di: DI by closestDI()
 
-    private lateinit var binding: FragmentSearchBinding
-
-    private val viewModel: SearchViewModel by activityScopedFragmentViewModel()
-    private val mainActivityViewModel: MainActivityViewModel by activityViewModels()
-    private val searchAdapter: SearchAdapter by lazy { SearchAdapter().apply { setHasStableIds(true) } }
+    override val viewModel: SearchViewModel by activityScopedFragmentViewModel()
+    private val searchAdapter: SearchAdapter by lazy { SearchAdapter { if (Random.nextBoolean()) parentNavController.navigate(MainFragmentDirections.actionGlobalToAuth()) else (findNavController().navigate(SearchFragmentDirections.actionSearchFragmentToAuthFragment())) }.apply { setHasStableIds(true); stateRestorationPolicy = PREVENT_WHEN_EMPTY } }
     private val session: Session by instance()
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+    override fun initBinding(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) {
         binding = FragmentSearchBinding.inflate(inflater, container, false)
+        (binding as FragmentSearchBinding).apply {
+            this.viewModel = this@SearchFragment.viewModel
+            lifecycleOwner = viewLifecycleOwner
 
-        binding.viewModel = viewModel
-        binding.setOnTryAgainClick { lifecycleScope.launch { request() } }
-        binding.setOnSearchClick { viewModel.searchBarOpened.set(true) }
-        binding.setOnCloseSearchClick { viewModel.searchBarOpened.set(false) }
-        initialization()
+            setOnTryAgainClick { lifecycleScope.launch { request() } }
+            setOnSearchClick { this@SearchFragment.viewModel.searchBarOpened.set(true) }
+            setOnCloseSearchClick { this@SearchFragment.viewModel.searchBarOpened.set(false) }
 
-        return binding.root
-    }
+            searchField.doAfterTextChanged { this@SearchFragment.viewModel.setSearchString(it.toString()) }
 
-    private fun initialization() {
-        hangObservers()
-        start()
-        initListeners()
-        configure()
-    }
-
-    private fun configure() {
-        binding.foundUsersList.apply {
-            setItemViewCacheSize(20)
-            itemAnimator = null
-            isDrawingCacheEnabled = true
-            drawingCacheQuality = View.DRAWING_CACHE_QUALITY_HIGH;
+            foundUsersList.apply {
+                setItemViewCacheSize(20)
+                itemAnimator = null
+                isDrawingCacheEnabled = true
+                drawingCacheQuality = View.DRAWING_CACHE_QUALITY_HIGH
+            }
         }
     }
 
-    private fun hangObservers() {
+    override fun hangObservers() {
         viewModel.apply {
-            searchStringLiveData.observe(viewLifecycleOwner) { searchString ->
+            searchStringLiveData.observeEvent(viewLifecycleOwner) { searchString ->
                 if (!viewModel.loading.get()) viewModel.loading.set(true)
                 viewModel.setCurrentPage(1)
+                searchAdapter.submitList(listOf())
                 lifecycleScope.launch {
                     delay(1000)
-                    if (searchString == viewModel.searchString) {
+                    if (searchString == viewModel.searchString.get()) {
                         restartSearch(searchString)
                     }
                 }
             }
 
-            userListLiveData.observe(viewLifecycleOwner) {
+            userListLiveData.observeEvent(viewLifecycleOwner) {
+                if ((binding as FragmentSearchBinding).foundUsersList.adapter != searchAdapter) {
+                    (binding as FragmentSearchBinding).foundUsersList.adapter = searchAdapter
+                }
                 searchAdapter.submitList(it.toList())
                 if (viewModel.page.get() == 1 && viewModel.totalCount.get() < 30) {
                     viewModel.loading.set(false)
                 } else {
-                    viewModel.page.get().plus(1)
-                        .let { nextPage -> viewModel.setCurrentPage(nextPage) }
+                    viewModel.setCurrentPage(viewModel.page.get().plus(1))
                 }
             }
 
-            errorLiveData.observe(viewLifecycleOwner) { errorMessage ->
-                errorMessage?.let { message ->
-                    Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
-                    viewModel.setErrorMessageToNull()
-                }
-            }
-
-            currentUserLiveData.observe(viewLifecycleOwner) { firebaseUser ->
-                if (firebaseUser != mainActivityViewModel.getCurrentUser()) {
-                    mainActivityViewModel.setCurrentUser(firebaseUser)
-                }
+            errorLiveData.observeEvent(viewLifecycleOwner) { errorMessage ->
+                errorMessage?.let { Snackbar.make(binding.root, errorMessage, Snackbar.LENGTH_LONG).show() }
             }
         }
     }
@@ -117,15 +105,14 @@ class SearchFragment : BaseFragment(), IOnBackPressed, NavigationView.OnNavigati
         if (!searchString.isNullOrBlank()) {
             viewModel.setCurrentPage(1)
             lifecycleScope.launch { request() }
+        } else {
+            viewModel.setNoResults()
         }
     }
 
-    private fun start() {
-        binding.foundUsersList.apply {
-            layoutManager = LinearLayoutManager(activity)
-            adapter = searchAdapter
-
-            itemAnimator = null
+    override fun start() {
+        if (!viewModel.usersList.get().isNullOrEmpty()) {
+            viewModel.notifyUsersList()
         }
 
         val googleSignInResults = viewModel.getSignInResults(requireContext())
@@ -142,22 +129,16 @@ class SearchFragment : BaseFragment(), IOnBackPressed, NavigationView.OnNavigati
         }
     }
 
-    private fun initListeners() {
-        binding.apply {
-            searchField.doAfterTextChanged { text -> this@SearchFragment.viewModel.setSearchString(text.toString()) }
-
-            binding.foundUsersList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+    override fun initListeners() {
+        (binding as FragmentSearchBinding).apply {
+            foundUsersList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                     super.onScrollStateChanged(recyclerView, newState)
-                    if (binding.loadingNextPage.isDisplayedOnScreen() && newState == SCROLL_STATE_IDLE && !this@SearchFragment.viewModel.beginNetworkRequest) {
+                    if (loadingNextPage.isDisplayedOnScreen() && newState == SCROLL_STATE_IDLE && !this@SearchFragment.viewModel.beginNetworkRequest) {
                         lifecycleScope.launch { request() }
                     }
                 }
             })
-
-            requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
-                showExitDialog()
-            }
         }
     }
 
@@ -169,29 +150,7 @@ class SearchFragment : BaseFragment(), IOnBackPressed, NavigationView.OnNavigati
         return true
     }
 
-    private fun showExitDialog() {
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(getString(R.string.menu_exit))
-            .setMessage(getString(R.string.exit_accept_message))
-            .setPositiveButton(getString(R.string.yes)) { _, _ -> exitProcess(0) }
-            .setNeutralButton(getString(R.string.cancel)) { dialog, _ -> dialog.dismiss() }
-            .show()
-    }
-
-    private fun showSignOutDialog() {
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(getString(R.string.sign_out))
-            .setMessage(getString(R.string.sign_out_accept_message))
-            .setPositiveButton(getString(R.string.yes)) { _, _ -> viewModel.signOut(requireContext()) }
-            .setNeutralButton(getString(R.string.cancel)) { dialog, _ -> dialog.dismiss() }
-            .show()
-    }
-
     private fun request() {
         viewModel.fetchData()
-    }
-
-    override fun onBackPressed() {
-        showExitDialog()
     }
 }

@@ -4,36 +4,37 @@ ext {
     targetSdkVersionValue = '30'
 
     // Core
-    gradleVersion = '4.2.0-beta06'
-    kotlinVersion = '1.4.31'
+    gradleVersion = '4.2.0-rc01'
+    kotlinVersion = '1.5.0'
     googlePlayServicesVersion = '4.3.2'
     fabricIoToolsVersion = '1.31.0'
     crashlyticsGradleVersion = '2.5.1'
     safeArgsGradleVersion = '1.0.0'
+    recyclerVersion = '1.2.0'
 
     // Base
     appcompatVersion = '1.2.0'
     legacySupportVersion = '1.0.0'
     constraintLayoutVersion = '2.0.4'
-    materialVersion = '1.4.0-alpha01'
-    androidCoreVersion = '1.5.0-beta03'
-    androidFragmentVersion = '1.3.2'
+    materialVersion = '1.4.0-alpha02'
+    androidCoreVersion = '1.6.0-alpha02'
+    androidFragmentVersion = '1.3.3'
 
     // Android's Architecture Components
-    architectureComponentsVersion = '2.3.0'
+    architectureComponentsVersion = '2.3.1'
     lifecycleExtensionsVersion = '2.2.0'
 
     // Databinding Library
     databindingLibraryVersion = '3.2.0-alpha10'
 
     // Coroutines
-    coroutinesVersion = '1.3.0'
+    coroutinesVersion = '1.5.0-RC-native-mt'
 
     // Firebase Libraries
-    firebaseCoreVersion = '18.0.2'
-    firebaseCrashlyticsVersion = '17.4.0'
+    firebaseCoreVersion = '18.0.3'
+    firebaseCrashlyticsVersion = '17.4.1'
     firebaseAnalyticsVersion = ''
-    firebaseAuthVersion = '20.0.3'
+    firebaseAuthVersion = '20.0.4'
 
     // Google Play Services Auth
     playServicesAuthVersion = '19.0.0'
@@ -57,9 +58,9 @@ ext {
     circleImageViewVersion = '3.1.0'
     
     // Kodein
-    kodeinVersion = '7.4.0'
+    kodeinVersion = '7.5.0'
     kodeinFrameworkVersion = '5.2.0'
 
     // Navigation component
-    navComponentVersion = '2.3.4'
+    navComponentVersion = '2.3.5'
 }
